@@ -33,6 +33,10 @@ class DatabaseSeeder extends Seeder
         // 3. Créer 5 participants
         $participants = User::factory(5)->create();
 
+        $group->participants()->attach($admin->id, [
+            'wishlist_id' => null,
+        ]);
+
         foreach ($participants as $user) {
             // A. Pour chaque participant, on crée une Wishlist avec 3 cadeaux
             $wishlist = Wishlist::factory()
