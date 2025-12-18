@@ -1,4 +1,5 @@
 import AppLogoIcon from '@/components/app-logo-icon';
+import { useSnowflakes } from '@/hooks/useSnowflakes';
 import { home } from '@/routes';
 import { Link } from '@inertiajs/react';
 import { type PropsWithChildren } from 'react';
@@ -14,6 +15,8 @@ export default function AuthSimpleLayout({
     title,
     description,
 }: PropsWithChildren<AuthLayoutProps>) {
+    const snowflakes = useSnowflakes(20);
+
     return (
         <div className="relative flex min-h-svh flex-col items-center justify-center gap-6 overflow-hidden bg-gradient-to-b from-[#D42426] to-[#8C1819] p-6 md:p-10 text-foreground selection:bg-[#F8B803] selection:text-[#391800]">
             {/* Custom Styles for Snow */}
@@ -34,16 +37,11 @@ export default function AuthSimpleLayout({
 
             {/* Snow Animation Layer */}
             <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 select-none">
-                {[...Array(20)].map((_, i) => (
+                {snowflakes.map((flake, i) => (
                     <div
                         key={i}
                         className="snowflake text-xl"
-                        style={{
-                            left: `${Math.random() * 100}vw`,
-                            animationDuration: `${Math.random() * 3 + 5}s`,
-                            animationDelay: `${Math.random() * 5}s`,
-                            opacity: Math.random() * 0.5 + 0.3
-                        }}
+                        style={flake}
                     >
                         ❄
                     </div>

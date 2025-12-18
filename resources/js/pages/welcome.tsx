@@ -10,12 +10,17 @@ import { ChevronDown } from 'lucide-react';
 import { type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
 
+import { useSnowflakes } from '@/hooks/useSnowflakes';
+
 export default function Welcome({
     canRegister = true,
 }: {
     canRegister?: boolean;
 }) {
     const { auth } = usePage<SharedData>().props;
+
+    const snowflakes = useSnowflakes(20);
+    const smallSnowflakes = useSnowflakes(15, 8);
 
     return (
         <>
@@ -48,30 +53,20 @@ export default function Welcome({
                 {/* Snow Animation Layer */}
                 <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 select-none">
                     {/* Generating random snowflakes positions */}
-                    {[...Array(20)].map((_, i) => (
+                    {snowflakes.map((flake, i) => (
                         <div
                             key={i}
                             className="snowflake text-xl"
-                            style={{
-                                left: `${Math.random() * 100}vw`,
-                                animationDuration: `${Math.random() * 3 + 5}s`,
-                                animationDelay: `${Math.random() * 5}s`,
-                                opacity: Math.random() * 0.5 + 0.3
-                            }}
+                            style={flake}
                         >
                             ❄
                         </div>
                     ))}
-                    {[...Array(15)].map((_, i) => (
+                    {smallSnowflakes.map((flake, i) => (
                         <div
                             key={i + 20}
                             className="snowflake text-sm"
-                            style={{
-                                left: `${Math.random() * 100}vw`,
-                                animationDuration: `${Math.random() * 3 + 8}s`,
-                                animationDelay: `${Math.random() * 5}s`,
-                                opacity: Math.random() * 0.5 + 0.2
-                            }}
+                            style={flake}
                         >
                             ❅
                         </div>
