@@ -29,7 +29,7 @@ export default function Welcome({
             {/* Custom Styles for Snow and Fonts */}
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&display=swap');
-                
+
                 .font-christmas {
                     font-family: 'Mountains of Christmas', cursive;
                 }

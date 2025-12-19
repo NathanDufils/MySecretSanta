@@ -27,7 +27,7 @@ export default function Login({
             title="Log in to your account"
             description="Enter your email and password below to log in"
         >
-            <Head title="Log in" />
+            <Head title="Santa Log in" />
 
             <Form
                 {...store.form()}
