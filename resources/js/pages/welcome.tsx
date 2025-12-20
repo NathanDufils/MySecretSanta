@@ -164,9 +164,10 @@ export default function Welcome({
                         {groups && groups.length > 0 ? (
                             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 animate-fade-in-up delay-100">
                                 {groups.map((group) => (
-                                    <div
+                                    <Link
+                                        href={`/groups/${group.id}`}
                                         key={group.id}
-                                        className="group relative overflow-hidden rounded-xl bg-white/10 backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/20 hover:shadow-xl"
+                                        className="group relative block overflow-hidden rounded-xl bg-white/10 backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/20 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-[#F8B803]"
                                     >
                                         <div className="p-6">
                                             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#165B33] text-2xl shadow-lg">
@@ -178,16 +179,15 @@ export default function Welcome({
                                             <p className="mb-6 text-sm text-red-100">
                                                 Managed by {group.admin_id === auth.user.id ? 'You' : 'Admin'}
                                             </p>
-                                            <Link
-                                                href={dashboard()}
-                                                className="inline-flex items-center gap-2 text-sm font-semibold text-[#F8B803] transition-colors hover:text-[#ffd666]"
+                                            <div
+                                                className="inline-flex items-center gap-2 text-sm font-semibold text-[#F8B803] transition-colors group-hover:text-[#ffd666]"
                                             >
                                                 Enter Group
                                                 <span aria-hidden="true">→</span>
-                                            </Link>
+                                            </div>
                                         </div>
                                         <div className="absolute -bottom-6 -right-6 h-24 w-24 rounded-full bg-[#D42426]/30 blur-2xl transition-all group-hover:bg-[#D42426]/50" />
-                                    </div>
+                                    </Link>
                                 ))}
                             </div>
                         ) : (
