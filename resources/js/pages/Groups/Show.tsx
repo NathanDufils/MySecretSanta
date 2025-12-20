@@ -1,12 +1,68 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
 import { type SharedData } from '@/types';
 import { useSnowflakes } from '@/hooks/useSnowflakes';
 import ChristmasTree from '@/components/ChristmasTree';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Trash2, Settings, UserPlus, Gift, X } from 'lucide-react';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+    DialogClose,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useState } from 'react';
 
 export default function GroupShow({ group, participants, draw }: { group: any, participants: any[], draw: any }) {
     const { auth } = usePage<SharedData>().props;
     const snowflakes = useSnowflakes(20);
+    const isAdmin = group.admin_id === auth.user.id;
+
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [isInviteOpen, setIsInviteOpen] = useState(false);
+
+    const updateForm = useForm({
+        description: group.description || '',
+        event_date: group.event_date ? new Date(group.event_date).toISOString().split('T')[0] : '',
+    });
+
+    const inviteForm = useForm({
+        email: '',
+    });
+
+    const handleUpdate = (e: React.FormEvent) => {
+        e.preventDefault();
+        updateForm.put(`/groups/${group.id}`, {
+            onSuccess: () => setIsSettingsOpen(false),
+        });
+    };
+
+    const handleInvite = (e: React.FormEvent) => {
+        e.preventDefault();
+        inviteForm.post(`/groups/${group.id}/participants`, {
+            onSuccess: () => {
+                setIsInviteOpen(false);
+                inviteForm.reset();
+            },
+        });
+    };
+
+    const handleRemove = (userId: number) => {
+        if (confirm('Are you sure you want to remove this member?')) {
+            router.delete(`/groups/${group.id}/participants/${userId}`);
+        }
+    };
+
+    const handleDraw = () => {
+        if (confirm('Launch the draw? This cannot be undone.')) {
+            router.post(`/groups/${group.id}/draw`);
+        }
+    };
 
     const myWishlist = participants.find((p: any) => p.id === auth.user.id)?.assigned_wishlist;
 
@@ -35,7 +91,7 @@ export default function GroupShow({ group, participants, draw }: { group: any, p
 
             <div className="relative z-10 mx-auto max-w-7xl px-6 pt-10">
                 {/* Header */}
-                <div className="mb-10 flex flex-col items-center">
+                <div className="mb-10 flex flex-col items-center text-center">
                     <Link
                         href="/"
                         className="mb-6 flex items-center gap-2 self-start rounded-full bg-white/10 px-4 py-2 text-sm font-semibold backdrop-blur-sm transition-colors hover:bg-white/20"
@@ -47,9 +103,120 @@ export default function GroupShow({ group, participants, draw }: { group: any, p
                     <h1 className="font-christmas mb-2 text-5xl font-bold text-white drop-shadow-md sm:text-7xl">
                         {group.name}
                     </h1>
-                    <p className="text-red-100">
-                        Managed by {group.admin_id === auth.user.id ? 'You' : 'Admin'}
+                    <p className="text-red-100 mb-4">
+                        Gift Exchange: {new Date(group.event_date).toLocaleDateString(undefined, { dateStyle: 'long' })}
                     </p>
+                    {group.description && <p className="text-white/80 max-w-2xl mb-6">{group.description}</p>}
+
+                    {isAdmin && (
+                        <div className="flex gap-4">
+                            <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+                                <DialogTrigger asChild>
+                                    <Button variant="secondary" className="gap-2">
+                                        <Settings className="h-4 w-4" /> Settings
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="text-black sm:max-w-[425px]">
+                                    <DialogHeader>
+                                        <DialogTitle>Group Settings</DialogTitle>
+                                        <DialogDescription>Update group details.</DialogDescription>
+                                    </DialogHeader>
+                                    <form onSubmit={handleUpdate}>
+                                        <div className="grid gap-4 py-4">
+                                            <div className="grid grid-cols-4 items-center gap-4">
+                                                <Label htmlFor="date" className="text-right">Date</Label>
+                                                <Input id="date" type="date" className="col-span-3" value={updateForm.data.event_date} onChange={e => updateForm.setData('event_date', e.target.value)} />
+                                            </div>
+                                            <div className="grid grid-cols-4 items-center gap-4">
+                                                <Label htmlFor="desc" className="text-right">Description</Label>
+                                                <Input id="desc" className="col-span-3" value={updateForm.data.description} onChange={e => updateForm.setData('description', e.target.value)} />
+                                            </div>
+                                        </div>
+                                        <DialogFooter>
+                                            <Button type="submit" className="bg-[#D42426] text-white hover:bg-[#b01e20]">Save</Button>
+                                        </DialogFooter>
+                                    </form>
+                                </DialogContent>
+                            </Dialog>
+
+                            <Dialog open={isInviteOpen} onOpenChange={setIsInviteOpen}>
+                                <DialogTrigger asChild>
+                                    <Button variant="secondary" className="gap-2" disabled={group.status !== 'open'}>
+                                        <UserPlus className="h-4 w-4" /> Add Member
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-[480px] bg-transparent border-none shadow-none p-0 overflow-visible focus:outline-none">
+                                    <div className="relative flex flex-col items-center">
+                                        {/* The Globe */}
+                                        <div className="relative w-full aspect-square rounded-full bg-gradient-to-b from-blue-50/50 to-white/40 backdrop-blur-md border-4 border-white/60 shadow-[0_0_50px_rgba(255,255,255,0.6)] flex flex-col items-center justify-center p-12 overflow-hidden z-10">
+
+                                            {/* Close Button */}
+                                            <DialogClose className="absolute top-10 text-white/80 hover:text-white transition-colors z-50 rounded-full p-2 bg-black/20 hover:bg-black/30">
+                                                <X className="w-6 h-6" />
+                                            </DialogClose>
+
+                                            {/* Internal Snow/Sparkle Effect (Static for performance) */}
+                                            <div className="absolute inset-0 pointer-events-none">
+                                                <div className="absolute top-10 left-10 text-white/40 text-xs">❄</div>
+                                                <div className="absolute top-20 right-14 text-white/30 text-xl">❅</div>
+                                                <div className="absolute bottom-16 left-20 text-white/20 text-lg">❄</div>
+                                            </div>
+
+                                            <DialogHeader className="mb-6 text-center relative z-20">
+                                                <DialogTitle className="font-christmas text-4xl text-[#D42426] drop-shadow-sm">Add Member</DialogTitle>
+                                                <DialogDescription className="text-slate-700 font-medium">
+                                                    Invite someone by email.
+                                                </DialogDescription>
+                                            </DialogHeader>
+
+                                            <form onSubmit={handleInvite} className="w-full relative z-20">
+                                                <div className="grid gap-4 py-4">
+                                                    <div className="flex flex-col gap-2">
+                                                        <Label htmlFor="email" className="text-center text-[#165B33] font-bold">
+                                                            Email Address
+                                                        </Label>
+                                                        <Input
+                                                            id="email"
+                                                            type="email"
+                                                            required
+                                                            value={inviteForm.data.email}
+                                                            onChange={e => inviteForm.setData('email', e.target.value)}
+                                                            className="col-span-3 text-center bg-white/60 border-[#165B33]/30 focus:border-[#165B33] placeholder:text-slate-500 text-black"
+                                                            placeholder="santa@northpole.com"
+                                                        />
+                                                    </div>
+                                                    {inviteForm.errors.email && (
+                                                        <p className="text-center text-sm text-[#D42426] font-bold bg-white/80 rounded-full px-2 py-0.5">{inviteForm.errors.email}</p>
+                                                    )}
+                                                </div>
+                                                <DialogFooter className="justify-center sm:justify-center mt-2">
+                                                    <Button type="submit" className="bg-[#D42426] hover:bg-[#b01e20] text-white rounded-full px-8 shadow-lg hover:scale-105 transition-transform">
+                                                        Add Member
+                                                    </Button>
+                                                </DialogFooter>
+                                            </form>
+                                        </div>
+
+                                        {/* The Base */}
+                                        <div className="w-[80%] h-24 bg-gradient-to-r from-[#8C1819] via-[#D42426] to-[#8C1819] rounded-b-[3rem] -mt-12 pt-16 relative z-0 border-x-4 border-b-4 border-[#391800]/20 shadow-2xl flex items-end justify-center pb-4">
+                                            <div className="text-[#F8B803] font-christmas text-xl opacity-80">Ho Ho Ho!</div>
+                                        </div>
+                                    </div>
+                                </DialogContent>
+                            </Dialog>
+
+                            {group.status === 'open' && (
+                                <Button
+                                    onClick={handleDraw}
+                                    className="bg-[#F8B803] text-[#391800] hover:bg-[#e0a602] font-bold gap-2"
+                                    disabled={participants.length < 3}
+                                >
+                                    <Gift className="h-4 w-4" />
+                                    Launch Draw
+                                </Button>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 <div className="grid gap-8 lg:grid-cols-2">
@@ -145,6 +312,15 @@ export default function GroupShow({ group, participants, draw }: { group: any, p
                                             <h3 className="font-bold truncate text-lg">
                                                 {participant.name} {participant.id === auth.user.id && '(You)'}
                                             </h3>
+                                            {isAdmin && participant.id !== auth.user.id && group.status === 'open' && (
+                                                <button
+                                                    onClick={() => handleRemove(participant.id)}
+                                                    className="text-white/50 hover:text-red-300 transition-colors"
+                                                    title="Remove member"
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </button>
+                                            )}
                                         </div>
 
                                         {/* Wishlist Preview */}

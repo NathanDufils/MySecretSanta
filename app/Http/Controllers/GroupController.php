@@ -44,4 +44,121 @@ class GroupController extends Controller
             'draw' => $draw,
         ]);
     }
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        // Calculate next Christmas
+        $now = now();
+        $christmas = \Carbon\Carbon::create($now->year, 12, 25);
+        
+        if ($now->greaterThanOrEqualTo($christmas)) {
+            $christmas->addYear();
+        }
+
+        $group = Group::create([
+            'name' => $validated['name'],
+            'event_date' => $christmas,
+            'code' => \Illuminate\Support\Str::upper(\Illuminate\Support\Str::random(6)),
+            'admin_id' => Auth::id(),
+        ]);
+
+        $group->participants()->attach(Auth::id());
+
+        return redirect()->back();
+    }
+
+    public function update(Request $request, Group $group)
+    {
+        if ($group->admin_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'description' => 'nullable|string|max:1000',
+            'event_date' => 'required|date',
+        ]);
+
+        $group->update($validated);
+
+        return redirect()->back();
+    }
+
+    public function addParticipant(Request $request, Group $group)
+    {
+        if ($group->admin_id !== Auth::id()) {
+            abort(403);
+        }
+
+        if ($group->status !== 'open') {
+            return redirect()->back()->withErrors(['message' => 'Cannot add members after draw.']);
+        }
+
+        $validated = $request->validate([
+            'email' => 'required|email|exists:users,email',
+        ]);
+
+        $user = \App\Models\User::where('email', $validated['email'])->first();
+
+        if (!$group->participants->contains($user->id)) {
+            $group->participants()->attach($user->id);
+        }
+
+        return redirect()->back();
+    }
+
+    public function removeParticipant(Request $request, Group $group, \App\Models\User $user)
+    {
+        if ($group->admin_id !== Auth::id()) {
+            abort(403);
+        }
+
+        if ($group->status !== 'open') {
+            return redirect()->back()->withErrors(['message' => 'Cannot remove members after draw.']);
+        }
+
+        if ($user->id === $group->admin_id) {
+             return redirect()->back()->withErrors(['message' => 'Admin cannot leave the group this way.']);
+        }
+
+        $group->participants()->detach($user->id);
+
+        return redirect()->back();
+    }
+
+    public function draw(Request $request, Group $group)
+    {
+        if ($group->admin_id !== Auth::id()) {
+            abort(403);
+        }
+
+        if ($group->participants()->count() < 3) {
+            return redirect()->back()->withErrors(['message' => 'Need at least 3 participants.']);
+        }
+
+        if ($group->status !== 'open') {
+            return redirect()->back()->withErrors(['message' => 'Draw already happened.']);
+        }
+
+        // Simple Secret Santa Algorithm
+        $participants = $group->participants->pluck('id')->shuffle();
+        $count = $participants->count();
+
+        for ($i = 0; $i < $count; $i++) {
+            $santaId = $participants[$i];
+            $targetId = $participants[($i + 1) % $count];
+
+            Draw::create([
+                'group_id' => $group->id,
+                'santa_id' => $santaId,
+                'target_id' => $targetId,
+            ]);
+        }
+
+        $group->update(['status' => 'drawn']);
+
+        return redirect()->back();
+    }
 }

@@ -8,9 +8,24 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ChevronDown } from 'lucide-react';
 import { type SharedData } from '@/types';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 
 import { useSnowflakes } from '@/hooks/useSnowflakes';
+import { ChevronRight, Users, Gift, Snowflake, X } from 'lucide-react';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+    DialogClose,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { FormEventHandler, useState } from 'react';
 
 export default function Welcome({
     canRegister = true,
@@ -23,6 +38,21 @@ export default function Welcome({
 
     const snowflakes = useSnowflakes(20);
     const smallSnowflakes = useSnowflakes(15, 8);
+
+    const [isCreateOpen, setIsCreateOpen] = useState(false);
+    const { data, setData, post, processing, errors, reset } = useForm({
+        name: '',
+    });
+
+    const createGroup: FormEventHandler = (e) => {
+        e.preventDefault();
+        post('/groups', {
+            onSuccess: () => {
+                setIsCreateOpen(false);
+                reset();
+            },
+        });
+    };
 
     return (
         <>
@@ -159,6 +189,71 @@ export default function Welcome({
                             <p className="mt-4 text-xl text-red-100">
                                 Connect with your Secret Santa events
                             </p>
+                            <div className="mt-8 flex justify-center">
+                                <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+                                    <DialogTrigger asChild>
+                                        <Button className="rounded-full bg-[#F8B803] px-8 py-6 text-lg font-bold text-[#391800] hover:bg-[#e0a602]">
+                                            + Create New Group
+                                        </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="sm:max-w-[480px] bg-transparent border-none shadow-none p-0 overflow-visible focus:outline-none">
+                                        <div className="relative flex flex-col items-center">
+                                            {/* The Globe */}
+                                            <div className="relative w-full aspect-square rounded-full bg-gradient-to-b from-blue-50/50 to-white/40 backdrop-blur-md border-4 border-white/60 shadow-[0_0_50px_rgba(255,255,255,0.6)] flex flex-col items-center justify-center p-12 overflow-hidden z-10">
+
+                                                {/* Close Button */}
+                                                <DialogClose className="absolute top-4 text-white/80 hover:text-white transition-colors z-50 rounded-full p-2 bg-black/20 hover:bg-black/30">
+                                                    <X className="w-6 h-6" />
+                                                </DialogClose>
+
+                                                {/* Internal Snow/Sparkle Effect (Static for performance) */}
+                                                <div className="absolute inset-0 pointer-events-none">
+                                                    <div className="absolute top-10 left-10 text-white/40 text-xs">❄</div>
+                                                    <div className="absolute top-20 right-14 text-white/30 text-xl">❅</div>
+                                                    <div className="absolute bottom-16 left-20 text-white/20 text-lg">❄</div>
+                                                </div>
+
+                                                <DialogHeader className="mb-6 text-center relative z-20">
+                                                    <DialogTitle className="font-christmas text-4xl text-[#D42426] drop-shadow-sm">Create a New Group</DialogTitle>
+                                                    <DialogDescription className="text-slate-700 font-medium">
+                                                        Give your group a name to get started.
+                                                    </DialogDescription>
+                                                </DialogHeader>
+
+                                                <form onSubmit={createGroup} className="w-full relative z-20">
+                                                    <div className="grid gap-4 py-4">
+                                                        <div className="flex flex-col gap-2">
+                                                            <Label htmlFor="name" className="text-center text-[#165B33] font-bold">
+                                                                Group Name
+                                                            </Label>
+                                                            <Input
+                                                                id="name"
+                                                                value={data.name}
+                                                                onChange={(e) => setData('name', e.target.value)}
+                                                                className="col-span-3 text-center bg-white/60 border-[#165B33]/30 focus:border-[#165B33] placeholder:text-slate-500 text-black"
+                                                                placeholder="Family"
+                                                            />
+                                                        </div>
+                                                        {errors.name && (
+                                                            <div className="text-center text-sm text-[#D42426] font-bold bg-white/80 rounded-full px-2 py-0.5">{errors.name}</div>
+                                                        )}
+                                                    </div>
+                                                    <DialogFooter className="justify-center sm:justify-center mt-2">
+                                                        <Button type="submit" disabled={processing} className="bg-[#D42426] hover:bg-[#b01e20] text-white rounded-full px-8 shadow-lg hover:scale-105 transition-transform">
+                                                            Create Group
+                                                        </Button>
+                                                    </DialogFooter>
+                                                </form>
+                                            </div>
+
+                                            {/* The Base */}
+                                            <div className="w-[80%] h-24 bg-gradient-to-r from-[#8C1819] via-[#D42426] to-[#8C1819] rounded-b-[3rem] -mt-12 pt-16 relative z-0 border-x-4 border-b-4 border-[#391800]/20 shadow-2xl flex items-end justify-center pb-4">
+                                                <div className="text-[#F8B803] font-christmas text-xl opacity-80">Ho Ho Ho!</div>
+                                            </div>
+                                        </div>
+                                    </DialogContent>
+                                </Dialog>
+                            </div>
                         </div>
 
                         {groups && groups.length > 0 ? (
@@ -177,7 +272,7 @@ export default function Welcome({
                                                 {group.name}
                                             </h3>
                                             <p className="mb-6 text-sm text-red-100">
-                                                Managed by {group.admin_id === auth.user.id ? 'You' : 'Admin'}
+                                                Gift Exchange: {new Date(group.event_date).toLocaleDateString(undefined, { dateStyle: 'long' })}
                                             </p>
                                             <div
                                                 className="inline-flex items-center gap-2 text-sm font-semibold text-[#F8B803] transition-colors group-hover:text-[#ffd666]"
