@@ -53,13 +53,13 @@ export default function GroupShow({ group, participants, draw }: { group: any, p
     };
 
     const handleRemove = (userId: number) => {
-        if (confirm('Are you sure you want to remove this member?')) {
+        if (confirm('Êtes-vous sûr de vouloir retirer ce membre ?')) {
             router.delete(`/groups/${group.id}/participants/${userId}`);
         }
     };
 
     const handleDraw = () => {
-        if (confirm('Launch the draw? This cannot be undone.')) {
+        if (confirm('Lancer le tirage ? Cette action est irréversible.')) {
             router.post(`/groups/${group.id}/draw`);
         }
     };
@@ -97,14 +97,14 @@ export default function GroupShow({ group, participants, draw }: { group: any, p
                         className="mb-6 flex items-center gap-2 self-start rounded-full bg-white/10 px-4 py-2 text-sm font-semibold backdrop-blur-sm transition-colors hover:bg-white/20"
                     >
                         <ChevronLeft className="h-4 w-4" />
-                        Back to Home
+                        Retour à l'Accueil
                     </Link>
 
                     <h1 className="font-christmas mb-2 text-5xl font-bold text-white drop-shadow-md sm:text-7xl">
                         {group.name}
                     </h1>
                     <p className="text-red-100 mb-4">
-                        Gift Exchange: {new Date(group.event_date).toLocaleDateString(undefined, { dateStyle: 'long' })}
+                        Échange de cadeaux : {new Date(group.event_date).toLocaleDateString('fr-FR', { dateStyle: 'long' })}
                     </p>
                     {group.description && <p className="text-white/80 max-w-2xl mb-6">{group.description}</p>}
 
@@ -113,13 +113,13 @@ export default function GroupShow({ group, participants, draw }: { group: any, p
                             <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
                                 <DialogTrigger asChild>
                                     <Button variant="secondary" className="gap-2">
-                                        <Settings className="h-4 w-4" /> Settings
+                                        <Settings className="h-4 w-4" /> Paramètres
                                     </Button>
                                 </DialogTrigger>
                                 <DialogContent className="text-black sm:max-w-[425px]">
                                     <DialogHeader>
-                                        <DialogTitle>Group Settings</DialogTitle>
-                                        <DialogDescription>Update group details.</DialogDescription>
+                                        <DialogTitle>Paramètres du Groupe</DialogTitle>
+                                        <DialogDescription>Modifier les détails du groupe.</DialogDescription>
                                     </DialogHeader>
                                     <form onSubmit={handleUpdate}>
                                         <div className="grid gap-4 py-4">
@@ -133,7 +133,7 @@ export default function GroupShow({ group, participants, draw }: { group: any, p
                                             </div>
                                         </div>
                                         <DialogFooter>
-                                            <Button type="submit" className="bg-[#D42426] text-white hover:bg-[#b01e20]">Save</Button>
+                                            <Button type="submit" className="bg-[#D42426] text-white hover:bg-[#b01e20]">Enregistrer</Button>
                                         </DialogFooter>
                                     </form>
                                 </DialogContent>
@@ -142,7 +142,7 @@ export default function GroupShow({ group, participants, draw }: { group: any, p
                             <Dialog open={isInviteOpen} onOpenChange={setIsInviteOpen}>
                                 <DialogTrigger asChild>
                                     <Button variant="secondary" className="gap-2" disabled={group.status !== 'open'}>
-                                        <UserPlus className="h-4 w-4" /> Add Member
+                                        <UserPlus className="h-4 w-4" /> Ajouter un Membre
                                     </Button>
                                 </DialogTrigger>
                                 <DialogContent className="sm:max-w-[480px] bg-transparent border-none shadow-none p-0 overflow-visible focus:outline-none">
@@ -163,9 +163,9 @@ export default function GroupShow({ group, participants, draw }: { group: any, p
                                             </div>
 
                                             <DialogHeader className="mb-6 text-center relative z-20">
-                                                <DialogTitle className="font-christmas text-4xl text-[#D42426] drop-shadow-sm">Add Member</DialogTitle>
+                                                <DialogTitle className="font-christmas text-4xl text-[#D42426] drop-shadow-sm">Ajouter un Membre</DialogTitle>
                                                 <DialogDescription className="text-slate-700 font-medium">
-                                                    Invite someone by email.
+                                                    Invitez quelqu'un par email.
                                                 </DialogDescription>
                                             </DialogHeader>
 
@@ -173,7 +173,7 @@ export default function GroupShow({ group, participants, draw }: { group: any, p
                                                 <div className="grid gap-4 py-4">
                                                     <div className="flex flex-col gap-2">
                                                         <Label htmlFor="email" className="text-center text-[#165B33] font-bold">
-                                                            Email Address
+                                                            Adresse Email
                                                         </Label>
                                                         <Input
                                                             id="email"
@@ -191,7 +191,7 @@ export default function GroupShow({ group, participants, draw }: { group: any, p
                                                 </div>
                                                 <DialogFooter className="justify-center sm:justify-center mt-2">
                                                     <Button type="submit" className="bg-[#D42426] hover:bg-[#b01e20] text-white rounded-full px-8 shadow-lg hover:scale-105 transition-transform">
-                                                        Add Member
+                                                        Ajouter
                                                     </Button>
                                                 </DialogFooter>
                                             </form>
@@ -199,7 +199,7 @@ export default function GroupShow({ group, participants, draw }: { group: any, p
 
                                         {/* The Base */}
                                         <div className="w-[80%] h-24 bg-gradient-to-r from-[#8C1819] via-[#D42426] to-[#8C1819] rounded-b-[3rem] -mt-12 pt-16 relative z-0 border-x-4 border-b-4 border-[#391800]/20 shadow-2xl flex items-end justify-center pb-4">
-                                            <div className="text-[#F8B803] font-christmas text-xl opacity-80">Ho Ho Ho!</div>
+                                            <div className="text-[#F8B803] font-christmas text-xl opacity-80">Ho Ho Ho !</div>
                                         </div>
                                     </div>
                                 </DialogContent>
@@ -212,7 +212,7 @@ export default function GroupShow({ group, participants, draw }: { group: any, p
                                     disabled={participants.length < 3}
                                 >
                                     <Gift className="h-4 w-4" />
-                                    Launch Draw
+                                    Lancer le Tirage
                                 </Button>
                             )}
                         </div>
@@ -228,17 +228,17 @@ export default function GroupShow({ group, participants, draw }: { group: any, p
                         <div className="rounded-2xl bg-[#165B33] p-8 shadow-xl border-4 border-[#F8B803]/50 relative overflow-hidden group hover:scale-[1.02] transition-transform">
                             <div className="relative z-10">
                                 <h2 className="font-christmas mb-4 text-3xl font-bold text-[#F8B803]">
-                                    🤫 Your Secret Mission
+                                    🤫 Votre Mission Secrète
                                 </h2>
                                 {draw ? (
                                     <div>
-                                        <p className="mb-2 text-lg text-green-100">You must prepare a gift for:</p>
+                                        <p className="mb-2 text-lg text-green-100">Vous devez préparer un cadeau pour :</p>
                                         <div className="text-4xl font-bold text-white mb-4">
                                             {draw.target?.name}
                                         </div>
                                         <div className="rounded-lg bg-black/20 p-4">
                                             <p className="mb-2 text-sm font-semibold uppercase tracking-wider text-[#F8B803]">
-                                                Their Wishlist
+                                                Sa Liste de Souhaits
                                             </p>
                                             <ul className="list-inside list-disc space-y-1 text-green-50">
                                                 {/* Find target in participants list to get their wishlist */}
@@ -247,18 +247,18 @@ export default function GroupShow({ group, participants, draw }: { group: any, p
                                                         <li key={item.id}>
                                                             <span className="font-medium">{item.name}</span>
                                                             {item.url && (
-                                                                <a href={item.url} target="_blank" rel="noreferrer" className="ml-2 text-xs text-[#F8B803] underline">Link</a>
+                                                                <a href={item.url} target="_blank" rel="noreferrer" className="ml-2 text-xs text-[#F8B803] underline">Lien</a>
                                                             )}
                                                         </li>
                                                     ))
                                                 ) : (
-                                                    <li className="italic opacity-70">No gifts added yet...</li>
+                                                    <li className="italic opacity-70">Aucun cadeau ajouté pour le moment...</li>
                                                 )}
                                             </ul>
                                         </div>
                                     </div>
                                 ) : (
-                                    <p className="text-xl text-white">The draw hasn't happened yet! Check back later.</p>
+                                    <p className="text-xl text-white">Le tirage n'a pas encore eu lieu ! Revenez plus tard.</p>
                                 )}
                             </div>
                             {/* Decorative shimmer */}
@@ -268,7 +268,7 @@ export default function GroupShow({ group, participants, draw }: { group: any, p
                         {/* MY WISHLIST CARD */}
                         <div className="rounded-2xl bg-white/10 backdrop-blur-md p-8 shadow-lg border border-white/20">
                             <h2 className="font-christmas mb-4 text-3xl font-bold text-white">
-                                📝 Your Wishlist
+                                📝 Votre Liste de Souhaits
                             </h2>
                             {myWishlist?.items?.length > 0 ? (
                                 <ul className="space-y-3">
@@ -283,10 +283,10 @@ export default function GroupShow({ group, participants, draw }: { group: any, p
                                     ))}
                                 </ul>
                             ) : (
-                                <p className="text-red-100 italic">You haven't added any wishes yet.</p>
+                                <p className="text-red-100 italic">Vous n'avez pas encore ajouté de souhaits.</p>
                             )}
                             <button className="mt-6 w-full rounded-full bg-white py-2 font-bold text-[#D42426] hover:bg-gray-100 transition-colors">
-                                Edit My Wishlist
+                                Modifier ma Liste
                             </button>
                         </div>
 
@@ -310,13 +310,13 @@ export default function GroupShow({ group, participants, draw }: { group: any, p
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center justify-between">
                                             <h3 className="font-bold truncate text-lg">
-                                                {participant.name} {participant.id === auth.user.id && '(You)'}
+                                                {participant.name} {participant.id === auth.user.id && '(Vous)'}
                                             </h3>
                                             {isAdmin && participant.id !== auth.user.id && group.status === 'open' && (
                                                 <button
                                                     onClick={() => handleRemove(participant.id)}
                                                     className="text-white/50 hover:text-red-300 transition-colors"
-                                                    title="Remove member"
+                                                    title="Retirer le membre"
                                                 >
                                                     <Trash2 className="h-4 w-4" />
                                                 </button>
@@ -326,7 +326,7 @@ export default function GroupShow({ group, participants, draw }: { group: any, p
                                         {/* Wishlist Preview */}
                                         <div className="mt-2">
                                             <p className="text-xs font-semibold uppercase tracking-wider text-white/60 mb-1">
-                                                Wishlist:
+                                                Liste :
                                             </p>
                                             {participant.assigned_wishlist?.items?.length > 0 ? (
                                                 <ul className="text-sm space-y-1 text-red-50">
@@ -338,7 +338,7 @@ export default function GroupShow({ group, participants, draw }: { group: any, p
                                                     ))}
                                                 </ul>
                                             ) : (
-                                                <p className="text-sm italic text-white/40">Empty...</p>
+                                                <p className="text-sm italic text-white/40">Vide...</p>
                                             )}
                                         </div>
                                     </div>

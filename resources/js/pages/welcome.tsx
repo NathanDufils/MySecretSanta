@@ -116,7 +116,7 @@ export default function Welcome({
                             <DropdownMenuContent align="end" className="w-48">
                                 <DropdownMenuItem asChild>
                                     <Link href={dashboard()} className="w-full cursor-pointer">
-                                        Dashboard
+                                        Tableau de Bord
                                     </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem asChild>
@@ -126,7 +126,7 @@ export default function Welcome({
                                         as="button"
                                         className="w-full cursor-pointer"
                                     >
-                                        Log Out
+                                        Déconnexion
                                     </Link>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -153,7 +153,7 @@ export default function Welcome({
                                     Secret Santa
                                 </h1>
                                 <p className="mx-auto md:mx-0 max-w-lg text-lg text-red-100 sm:text-xl">
-                                    Organize the most magical gift exchange with your friends and family!
+                                    Organisez l'échange de cadeaux le plus magique avec vos amis et votre famille !
                                 </p>
                             </div>
 
@@ -163,7 +163,7 @@ export default function Welcome({
                                     href={login()}
                                     className="group relative inline-flex min-w-[160px] items-center justify-center overflow-hidden rounded-full bg-white px-8 py-3 font-bold text-[#D42426] shadow-lg transition-transform hover:scale-105 hover:bg-gray-50 focus:outline-none focus:ring-4 focus:ring-white/50"
                                 >
-                                    <span className="relative z-10">Login</span>
+                                    <span className="relative z-10">Connexion</span>
                                 </Link>
 
                                 {canRegister && (
@@ -171,7 +171,7 @@ export default function Welcome({
                                         href={register()}
                                         className="group relative inline-flex min-w-[160px] items-center justify-center overflow-hidden rounded-full bg-[#F8B803] px-8 py-3 font-bold text-[#391800] shadow-lg transition-transform hover:scale-105 hover:bg-[#e0a602] focus:outline-none focus:ring-4 focus:ring-[#F8B803]/50"
                                     >
-                                        <span className="relative z-10">Get Started</span>
+                                        <span className="relative z-10">Commencer</span>
                                     </Link>
                                 )}
                             </div>
@@ -184,16 +184,16 @@ export default function Welcome({
                     <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col justify-center px-6 py-20">
                         <div className="mb-12 text-center animate-fade-in-down">
                             <h2 className="font-christmas text-5xl font-bold text-white drop-shadow-md sm:text-6xl">
-                                Your Groups
+                                Vos Groupes
                             </h2>
                             <p className="mt-4 text-xl text-red-100">
-                                Connect with your Secret Santa events
+                                Retrouvez vos événements Secret Santa
                             </p>
                             <div className="mt-8 flex justify-center">
                                 <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
                                     <DialogTrigger asChild>
                                         <Button className="rounded-full bg-[#F8B803] px-8 py-6 text-lg font-bold text-[#391800] hover:bg-[#e0a602]">
-                                            + Create New Group
+                                            + Créer un Groupe
                                         </Button>
                                     </DialogTrigger>
                                     <DialogContent className="sm:max-w-[480px] bg-transparent border-none shadow-none p-0 overflow-visible focus:outline-none">
@@ -214,9 +214,9 @@ export default function Welcome({
                                                 </div>
 
                                                 <DialogHeader className="mb-6 text-center relative z-20">
-                                                    <DialogTitle className="font-christmas text-4xl text-[#D42426] drop-shadow-sm">Create a New Group</DialogTitle>
+                                                    <DialogTitle className="font-christmas text-4xl text-[#D42426] drop-shadow-sm">Créer un Nouveau Groupe</DialogTitle>
                                                     <DialogDescription className="text-slate-700 font-medium">
-                                                        Give your group a name to get started.
+                                                        Donnez un nom à votre groupe pour commencer.
                                                     </DialogDescription>
                                                 </DialogHeader>
 
@@ -224,14 +224,14 @@ export default function Welcome({
                                                     <div className="grid gap-4 py-4">
                                                         <div className="flex flex-col gap-2">
                                                             <Label htmlFor="name" className="text-center text-[#165B33] font-bold">
-                                                                Group Name
+                                                                Nom du Groupe
                                                             </Label>
                                                             <Input
                                                                 id="name"
                                                                 value={data.name}
                                                                 onChange={(e) => setData('name', e.target.value)}
                                                                 className="col-span-3 text-center bg-white/60 border-[#165B33]/30 focus:border-[#165B33] placeholder:text-slate-500 text-black"
-                                                                placeholder="Family"
+                                                                placeholder="Famille"
                                                             />
                                                         </div>
                                                         {errors.name && (
@@ -240,7 +240,7 @@ export default function Welcome({
                                                     </div>
                                                     <DialogFooter className="justify-center sm:justify-center mt-2">
                                                         <Button type="submit" disabled={processing} className="bg-[#D42426] hover:bg-[#b01e20] text-white rounded-full px-8 shadow-lg hover:scale-105 transition-transform">
-                                                            Create Group
+                                                            Créer le Groupe
                                                         </Button>
                                                     </DialogFooter>
                                                 </form>
@@ -248,7 +248,7 @@ export default function Welcome({
 
                                             {/* The Base */}
                                             <div className="w-[80%] h-24 bg-gradient-to-r from-[#8C1819] via-[#D42426] to-[#8C1819] rounded-b-[3rem] -mt-12 pt-16 relative z-0 border-x-4 border-b-4 border-[#391800]/20 shadow-2xl flex items-end justify-center pb-4">
-                                                <div className="text-[#F8B803] font-christmas text-xl opacity-80">Ho Ho Ho!</div>
+                                                <div className="text-[#F8B803] font-christmas text-xl opacity-80">Ho Ho Ho !</div>
                                             </div>
                                         </div>
                                     </DialogContent>
@@ -272,12 +272,12 @@ export default function Welcome({
                                                 {group.name}
                                             </h3>
                                             <p className="mb-6 text-sm text-red-100">
-                                                Gift Exchange: {new Date(group.event_date).toLocaleDateString(undefined, { dateStyle: 'long' })}
+                                                Échange de cadeaux : {new Date(group.event_date).toLocaleDateString('fr-FR', { dateStyle: 'long' })}
                                             </p>
                                             <div
                                                 className="inline-flex items-center gap-2 text-sm font-semibold text-[#F8B803] transition-colors group-hover:text-[#ffd666]"
                                             >
-                                                Enter Group
+                                                Voir le Groupe
                                                 <span aria-hidden="true">→</span>
                                             </div>
                                         </div>
@@ -287,7 +287,7 @@ export default function Welcome({
                             </div>
                         ) : (
                             <div className="text-center text-white/80 animate-fade-in-up">
-                                <p className="text-lg">You haven't joined any groups yet.</p>
+                                <p className="text-lg">Vous n'avez pas encore rejoint de groupe.</p>
                             </div>
                         )}
                     </div>
