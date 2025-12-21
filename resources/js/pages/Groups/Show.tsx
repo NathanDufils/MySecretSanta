@@ -26,12 +26,17 @@ export default function GroupShow({ group, participants, draw }: { group: any, p
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [isInviteOpen, setIsInviteOpen] = useState(false);
 
-    const updateForm = useForm({
+    const updateForm = useForm<{
+        description: string;
+        event_date: string;
+    }>({
         description: group.description || '',
         event_date: group.event_date ? new Date(group.event_date).toISOString().split('T')[0] : '',
     });
 
-    const inviteForm = useForm({
+    const inviteForm = useForm<{
+        email: string;
+    }>({
         email: '',
     });
 
