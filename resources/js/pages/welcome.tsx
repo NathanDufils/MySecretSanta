@@ -6,9 +6,9 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Check, X as XIcon } from 'lucide-react';
 import { type SharedData } from '@/types';
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
 
 import { useSnowflakes } from '@/hooks/useSnowflakes';
 import { ChevronRight, Users, Gift, Snowflake, X } from 'lucide-react';
@@ -30,9 +30,11 @@ import { FormEventHandler, useState } from 'react';
 export default function Welcome({
     canRegister = true,
     groups = [],
+    invitations = [],
 }: {
     canRegister?: boolean;
     groups?: any[];
+    invitations?: any[];
 }) {
     const { auth } = usePage<SharedData>().props;
 
@@ -52,6 +54,20 @@ export default function Welcome({
                 reset();
             },
         });
+    };
+
+    const handleAcceptInvitation = (invitationId: number) => {
+        router.post(`/invitations/${invitationId}/accept`, {}, {
+            preserveScroll: true,
+        });
+    };
+
+    const handleDeclineInvitation = (invitationId: number) => {
+        if (confirm('Voulez-vous vraiment refuser cette invitation ?')) {
+            router.post(`/invitations/${invitationId}/decline`, {}, {
+                preserveScroll: true,
+            });
+        }
     };
 
     return (
@@ -81,7 +97,6 @@ export default function Welcome({
             `}</style>
 
             <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-[#D42426] to-[#8C1819] text-white selection:bg-[#F8B803] selection:text-[#391800]">
-
                 {/* Snow Animation Layer */}
                 <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 select-none">
                     {/* Generating random snowflakes positions */}
@@ -105,9 +120,70 @@ export default function Welcome({
                     ))}
                 </div>
 
-                {/* User Dropdown */}
+                {/* User Dropdown & Notifications */}
                 {auth.user && (
-                    <div className="absolute right-6 top-6 z-50">
+                    <div className="absolute right-6 top-6 z-50 flex items-center gap-4">
+
+                        {/* Notifications */}
+                        <DropdownMenu>
+                            <DropdownMenuTrigger className="relative flex items-center justify-center rounded-full bg-white/10 p-2 text-white backdrop-blur-sm transition-colors hover:bg-white/20 focus:outline-none">
+                                <span className="sr-only">Notifications</span>
+                                <div className="relative">
+                                    <span className="text-xl">🔔</span>
+                                    {invitations && invitations.length > 0 && (
+                                        <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#F8B803] text-[10px] font-bold text-[#391800]">
+                                            {invitations.length}
+                                        </span>
+                                    )}
+                                </div>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-80 p-0 overflow-hidden bg-white/90 backdrop-blur-xl border-none shadow-2xl rounded-2xl">
+                                <div className="bg-[#D42426] p-4 text-white">
+                                    <h3 className="font-bold flex items-center gap-2">
+                                        💌 Invitations {invitations?.length ? `(${invitations.length})` : ''}
+                                    </h3>
+                                </div>
+                                <div className="max-h-[300px] overflow-y-auto p-2 space-y-2">
+                                    {invitations && invitations.length > 0 ? (
+                                        invitations.map((invite: any) => (
+                                            <div key={invite.id} className="bg-white/50 rounded-xl p-3 border border-gray-100 shadow-sm">
+                                                <div className="mb-2">
+                                                    <p className="font-bold text-gray-800 text-sm">
+                                                        {invite.group?.name}
+                                                    </p>
+                                                    <p className="text-xs text-gray-500">
+                                                        Invité par {invite.group?.admin?.name}
+                                                    </p>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <Button
+                                                        onClick={() => handleAcceptInvitation(invite.id)}
+                                                        size="sm"
+                                                        className="flex-1 bg-[#165B33] hover:bg-[#0f4224] text-white rounded-lg h-8 text-xs gap-1"
+                                                    >
+                                                        <Check className="w-3 h-3" /> Accepter
+                                                    </Button>
+                                                    <Button
+                                                        onClick={() => handleDeclineInvitation(invite.id)}
+                                                        variant="destructive"
+                                                        size="sm"
+                                                        className="flex-1 rounded-lg h-8 text-xs gap-1"
+                                                    >
+                                                        <XIcon className="w-3 h-3" /> Refuser
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="p-4 text-center text-gray-500 text-sm italic">
+                                            Aucune nouvelle invitation.
+                                        </div>
+                                    )}
+                                </div>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+
+                        {/* User Menu */}
                         <DropdownMenu>
                             <DropdownMenuTrigger className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-white backdrop-blur-sm transition-colors hover:bg-white/20 focus:outline-none">
                                 <span className="font-semibold">{auth.user.name}</span>
@@ -189,6 +265,7 @@ export default function Welcome({
                             <p className="mt-4 text-xl text-red-100">
                                 Retrouvez vos événements Secret Santa
                             </p>
+
                             <div className="mt-8 flex justify-center">
                                 <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
                                     <DialogTrigger asChild>

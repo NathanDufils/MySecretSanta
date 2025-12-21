@@ -147,7 +147,7 @@ export default function GroupShow({ group, participants, draw }: { group: any, p
                             <Dialog open={isInviteOpen} onOpenChange={setIsInviteOpen}>
                                 <DialogTrigger asChild>
                                     <Button variant="secondary" className="gap-2" disabled={group.status !== 'open'}>
-                                        <UserPlus className="h-4 w-4" /> Ajouter un Membre
+                                        <UserPlus className="h-4 w-4" /> Inviter un Membre
                                     </Button>
                                 </DialogTrigger>
                                 <DialogContent className="sm:max-w-[480px] bg-transparent border-none shadow-none p-0 overflow-visible focus:outline-none">
@@ -168,9 +168,9 @@ export default function GroupShow({ group, participants, draw }: { group: any, p
                                             </div>
 
                                             <DialogHeader className="mb-6 text-center relative z-20">
-                                                <DialogTitle className="font-christmas text-4xl text-[#D42426] drop-shadow-sm">Ajouter un Membre</DialogTitle>
+                                                <DialogTitle className="font-christmas text-4xl text-[#D42426] drop-shadow-sm">Inviter un Membre</DialogTitle>
                                                 <DialogDescription className="text-slate-700 font-medium">
-                                                    Invitez quelqu'un par email.
+                                                    Envoyez une invitation par email pour rejoindre le groupe.
                                                 </DialogDescription>
                                             </DialogHeader>
 
@@ -195,8 +195,8 @@ export default function GroupShow({ group, participants, draw }: { group: any, p
                                                     )}
                                                 </div>
                                                 <DialogFooter className="justify-center sm:justify-center mt-2">
-                                                    <Button type="submit" className="bg-[#D42426] hover:bg-[#b01e20] text-white rounded-full px-8 shadow-lg hover:scale-105 transition-transform">
-                                                        Ajouter
+                                                    <Button type="submit" disabled={inviteForm.processing} className="bg-[#D42426] hover:bg-[#b01e20] text-white rounded-full px-8 shadow-lg hover:scale-105 transition-transform">
+                                                        Envoyer l'invitation
                                                     </Button>
                                                 </DialogFooter>
                                             </form>

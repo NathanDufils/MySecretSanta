@@ -9,6 +9,9 @@ Route::get('/', function () {
     return Inertia::render('welcome', [
         'canRegister' => Features::enabled(Features::registration()),
         'groups' => Auth::user()?->groups ?? [],
+        'invitations' => Auth::user() 
+            ? \App\Models\Invitation::where('email', Auth::user()->email)->with('group.admin')->get() 
+            : [],
     ]);
 })->name('home');
 
@@ -22,6 +25,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     Route::put('/groups/{group}', [\App\Http\Controllers\GroupController::class, 'update'])->name('groups.update');
     Route::post('/groups/{group}/participants', [\App\Http\Controllers\GroupController::class, 'addParticipant'])->name('groups.participants.add');
+    Route::post('/invitations/{invitation}/accept', [\App\Http\Controllers\InvitationController::class, 'accept'])->name('invitations.accept');
+    Route::post('/invitations/{invitation}/decline', [\App\Http\Controllers\InvitationController::class, 'decline'])->name('invitations.decline');
+
     Route::delete('/groups/{group}/participants/{user}', [\App\Http\Controllers\GroupController::class, 'removeParticipant'])->name('groups.participants.remove');
     Route::post('/groups/{group}/draw', [\App\Http\Controllers\GroupController::class, 'draw'])->name('groups.draw');
 });

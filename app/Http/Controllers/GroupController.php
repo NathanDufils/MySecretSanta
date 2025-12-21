@@ -97,16 +97,31 @@ class GroupController extends Controller
         }
 
         $validated = $request->validate([
-            'email' => 'required|email|exists:users,email',
+            'email' => 'required|email',
         ]);
 
-        $user = \App\Models\User::where('email', $validated['email'])->first();
-
-        if (!$group->participants->contains($user->id)) {
-            $group->participants()->attach($user->id);
+        // Check if already participant
+        $existingUser = \App\Models\User::where('email', $validated['email'])->first();
+        if ($existingUser && $group->participants->contains($existingUser->id)) {
+             return redirect()->back()->withErrors(['email' => 'This user is already in the group.']);
         }
 
-        return redirect()->back();
+        // Check if already invited
+        $existingInvitation = \App\Models\Invitation::where('group_id', $group->id)
+            ->where('email', $validated['email'])
+            ->first();
+
+        if ($existingInvitation) {
+            return redirect()->back()->withErrors(['email' => 'Invitation already sent to this email.']);
+        }
+
+        \App\Models\Invitation::create([
+            'group_id' => $group->id,
+            'email' => $validated['email'],
+            'token' => \Illuminate\Support\Str::random(32),
+        ]);
+
+        return redirect()->back()->with('success', 'Invitation sent successfully.');
     }
 
     public function removeParticipant(Request $request, Group $group, \App\Models\User $user)
