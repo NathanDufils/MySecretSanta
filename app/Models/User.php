@@ -52,4 +52,9 @@ class User extends Authenticatable
             ->withPivot('wishlist_id')
             ->withTimestamps();
     }
+
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
 }

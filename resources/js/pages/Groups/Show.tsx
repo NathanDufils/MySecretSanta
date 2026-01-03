@@ -18,13 +18,25 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useState } from 'react';
 
-export default function GroupShow({ group, participants, draw }: { group: any, participants: any[], draw: any }) {
+// @ts-ignore
+export default function GroupShow({ group, participants, draw, userWishlists }: { group: any, participants: any[], draw: any, userWishlists: any[] }) {
     const { auth } = usePage<SharedData>().props;
     const snowflakes = useSnowflakes(20);
     const isAdmin = group.admin_id === auth.user.id;
 
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [isInviteOpen, setIsInviteOpen] = useState(false);
+    const [wishlistLoading, setWishlistLoading] = useState(false);
+
+    const handleAssign = (wishlistId: string) => {
+        setWishlistLoading(true);
+        // @ts-ignore
+        // @ts-ignore
+        router.post(`/groups/${group.id}/wishlist`, { wishlist_id: wishlistId }, {
+            onFinish: () => setWishlistLoading(false),
+            preserveScroll: true,
+        });
+    };
 
     const updateForm = useForm<{
         description: string;
@@ -275,24 +287,48 @@ export default function GroupShow({ group, participants, draw }: { group: any, p
                             <h2 className="font-christmas mb-4 text-3xl font-bold text-white">
                                 📝 Votre Liste de Souhaits
                             </h2>
+
+                            <div className="mb-6">
+                                <label className="block text-sm font-medium text-white/80 mb-2">Choisir la liste pour ce groupe :</label>
+                                <select
+                                    className="w-full rounded-lg bg-white/20 border-white/10 text-white focus:ring-[#F8B803] focus:border-[#F8B803] focus:bg-white/30 transition-colors"
+                                    value={myWishlist?.id || ''}
+                                    onChange={(e) => handleAssign(e.target.value)}
+                                    disabled={wishlistLoading}
+                                >
+                                    <option value="" className="text-black">-- Aucune liste sélectionnée --</option>
+                                    {userWishlists.map((list: any) => (
+                                        <option key={list.id} value={list.id} className="text-black">{list.title} ({list.items?.length || 0} objets)</option>
+                                    ))}
+                                </select>
+                            </div>
+
                             {myWishlist?.items?.length > 0 ? (
-                                <ul className="space-y-3">
+                                <ul className="space-y-3 mb-6 max-h-60 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/30 scrollbar-track-transparent">
                                     {myWishlist.items.map((item: any) => (
-                                        <li key={item.id} className="flex items-center gap-3 rounded-lg bg-white/5 p-3">
+                                        <li key={item.id} className="flex items-center gap-3 rounded-lg bg-white/5 p-3 hover:bg-white/10 transition-colors">
                                             <span className="text-2xl">🎁</span>
                                             <div className="flex-1 min-w-0">
                                                 <p className="font-semibold truncate">{item.name}</p>
-                                                {item.url && <a href={item.url} target="_blank" className="text-xs text-[#F8B803] hover:underline truncate block">{item.url}</a>}
+                                                {item.url && <a href={item.url} target="_blank" rel="noreferrer" className="text-xs text-[#F8B803] hover:underline truncate block flex items-center gap-1">
+                                                    <Gift className="w-3 h-3 inline" /> Voir le lien
+                                                </a>}
                                             </div>
                                         </li>
                                     ))}
                                 </ul>
                             ) : (
-                                <p className="text-red-100 italic">Vous n'avez pas encore ajouté de souhaits.</p>
+                                <div className="text-center py-6 mb-4">
+                                    <p className="text-red-100 italic mb-2">Aucune liste active.</p>
+                                    <p className="text-sm text-white/60">Sélectionnez une liste ci-dessus ou créez-en une nouvelle.</p>
+                                </div>
                             )}
-                            <button className="mt-6 w-full rounded-full bg-white py-2 font-bold text-[#D42426] hover:bg-gray-100 transition-colors">
-                                Modifier ma Liste
-                            </button>
+
+                            {/* @ts-ignore */}
+                            {/* @ts-ignore */}
+                            <Link href="/wishlists" className="block w-full text-center rounded-full bg-white py-3 font-bold text-[#D42426] hover:bg-gray-100 transition-colors shadow-md hover:scale-[1.02] active:scale-95">
+                                Gérer mes Listes
+                            </Link>
                         </div>
 
                     </div>

@@ -196,6 +196,11 @@ export default function Welcome({
                                     </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem asChild>
+                                    <Link href="/wishlists" className="w-full cursor-pointer">
+                                        🎁 Mes Listes de Souhaits
+                                    </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem asChild>
                                     <Link
                                         href={logout()}
                                         method="post"

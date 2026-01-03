@@ -30,6 +30,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::delete('/groups/{group}/participants/{user}', [\App\Http\Controllers\GroupController::class, 'removeParticipant'])->name('groups.participants.remove');
     Route::post('/groups/{group}/draw', [\App\Http\Controllers\GroupController::class, 'draw'])->name('groups.draw');
+    Route::post('/groups/{group}/wishlist', [\App\Http\Controllers\GroupController::class, 'assignWishlist'])->name('groups.wishlist.assign');
+
+    Route::resource('wishlists', \App\Http\Controllers\WishlistController::class);
+    Route::post('/wishlists/{wishlist}/items', [\App\Http\Controllers\WishlistController::class, 'addItem'])->name('wishlists.items.add');
+    Route::delete('/wishlists/{wishlist}/items/{item}', [\App\Http\Controllers\WishlistController::class, 'removeItem'])->name('wishlists.items.remove');
 });
 
 require __DIR__.'/settings.php';

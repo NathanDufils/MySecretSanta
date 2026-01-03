@@ -42,6 +42,7 @@ class GroupController extends Controller
             'group' => $group,
             'participants' => $participants,
             'draw' => $draw,
+            'userWishlists' => Auth::user()->wishlists()->with('items')->get(),
         ]);
     }
     public function store(Request $request)
@@ -175,5 +176,31 @@ class GroupController extends Controller
         $group->update(['status' => 'drawn']);
 
         return redirect()->back();
+    }
+
+    public function assignWishlist(Request $request, Group $group)
+    {
+        // Ensure user belongs to the group
+        if (!$group->participants->contains(Auth::id())) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'wishlist_id' => 'nullable|exists:wishlists,id',
+        ]);
+
+        // Verify ownership if set
+        if ($validated['wishlist_id']) {
+            $wishlist = Wishlist::find($validated['wishlist_id']);
+            if ($wishlist->user_id !== Auth::id()) {
+                abort(403);
+            }
+        }
+
+        $group->participants()->updateExistingPivot(Auth::id(), [
+            'wishlist_id' => $validated['wishlist_id'],
+        ]);
+
+        return redirect()->back()->with('success', 'Wishlist assigned successfully.');
     }
 }
