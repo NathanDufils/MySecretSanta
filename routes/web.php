@@ -9,6 +9,7 @@ Route::get('/', function () {
     return Inertia::render('welcome', [
         'canRegister' => Features::enabled(Features::registration()),
         'groups' => Auth::user()?->groups ?? [],
+        'wishlists' => Auth::user()?->wishlists ?? [],
         'invitations' => Auth::user() 
             ? \App\Models\Invitation::where('email', Auth::user()->email)->with('group.admin')->get() 
             : [],
@@ -16,9 +17,7 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
+    Route::redirect('/dashboard', '/');
 
     Route::get('/groups/{group}', [\App\Http\Controllers\GroupController::class, 'show'])->name('groups.show');
     Route::post('/groups', [\App\Http\Controllers\GroupController::class, 'store'])->name('groups.store');

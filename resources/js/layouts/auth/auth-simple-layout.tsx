@@ -21,17 +21,20 @@ export default function AuthSimpleLayout({
         <div className="relative flex min-h-svh flex-col items-center justify-center gap-6 overflow-hidden bg-gradient-to-b from-[#D42426] to-[#8C1819] p-6 md:p-10 text-foreground selection:bg-[#F8B803] selection:text-[#391800]">
             {/* Custom Styles for Snow */}
             <style>{`
-                .snowflake {
-                    position: absolute;
-                    top: -3vh;
-                    color: white;
-                    animation: fall linear infinite;
+            @import url('https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&display=swap');
+            .font-christmas { font-family: 'Mountains of Christmas', cursive; }
+
+            .snowflake {
+                position: absolute;
+            top: -3vh;
+            color: white;
+            animation: fall linear infinite;
                 }
 
-                @keyframes fall {
-                    0% { transform: translateY(-10vh) translateX(0px); opacity: 0; }
-                    10% { opacity: 0.8; }
-                    100% { transform: translateY(100vh) translateX(20px); opacity: 0.3; }
+            @keyframes fall {
+                0 % { transform: translateY(-10vh) translateX(0px); opacity: 0; }
+                    10% {opacity: 0.8; }
+            100% {transform: translateY(100vh) translateX(20px); opacity: 0.3; }
                 }
             `}</style>
 
@@ -48,7 +51,7 @@ export default function AuthSimpleLayout({
                 ))}
             </div>
 
-            <div className="relative z-10 w-full max-w-sm rounded-xl bg-background/95 p-8 shadow-2xl backdrop-blur-sm">
+            <div className="relative z-10 w-full max-w-lg rounded-xl bg-background/95 p-8 shadow-2xl backdrop-blur-sm">
                 <div className="flex flex-col gap-8">
                     <div className="flex flex-col items-center gap-4">
                         <Link
@@ -62,7 +65,7 @@ export default function AuthSimpleLayout({
                         </Link>
 
                         <div className="space-y-2 text-center">
-                            <h1 className="text-xl font-medium">{title}</h1>
+                            <h1 className="text-3xl font-bold font-christmas text-[#D42426]">{title}</h1>
                             <p className="text-center text-sm text-muted-foreground">
                                 {description}
                             </p>
@@ -71,6 +74,6 @@ export default function AuthSimpleLayout({
                     {children}
                 </div>
             </div>
-        </div>
+        </div >
     );
 }

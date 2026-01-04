@@ -1,4 +1,3 @@
-// import { dashboard, login, register, logout } from '@/routes';
 import ChristmasTree from '@/components/ChristmasTree';
 import {
     DropdownMenu,
@@ -6,7 +5,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ChevronDown, Check, X as XIcon } from 'lucide-react';
+import { ChevronDown, Check, X as XIcon, Bell, Heart, Plus } from 'lucide-react';
 import { type SharedData } from '@/types';
 import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
 
@@ -37,6 +36,12 @@ interface Group {
     admin?: { name: string };
 }
 
+interface Wishlist {
+    id: number;
+    title: string;
+    items: { length: number }[];
+}
+
 interface Invitation {
     id: number;
     group: Group;
@@ -46,10 +51,12 @@ export default function Welcome({
     canRegister = true,
     groups = [],
     invitations = [],
+    wishlists = [],
 }: {
     canRegister?: boolean;
     groups?: Group[];
     invitations?: Invitation[];
+    wishlists?: Wishlist[];
 }) {
     const { auth } = usePage<SharedData>().props;
 
@@ -57,17 +64,33 @@ export default function Welcome({
     const smallSnowflakes = useSnowflakes(15, 8);
 
     const [isCreateOpen, setIsCreateOpen] = useState(false);
-    const { data, setData, post, processing, errors, reset } = useForm({
+
+    // Create Group Form
+    const createForm = useForm({
         name: '',
+    });
+
+    // Join Group Form
+    const joinForm = useForm({
+        code: '',
     });
 
     const createGroup: FormEventHandler = (e) => {
         e.preventDefault();
-        post('/groups', {
+        createForm.post('/groups', {
             onSuccess: () => {
                 setIsCreateOpen(false);
-                reset();
+                createForm.reset();
             },
+        });
+    };
+
+    const handleJoin = (e: React.FormEvent) => {
+        e.preventDefault();
+        joinForm.post('/groups/join', {
+            onSuccess: () => {
+                joinForm.reset();
+            }
         });
     };
 
@@ -141,10 +164,10 @@ export default function Welcome({
 
                         {/* Notifications */}
                         <DropdownMenu>
-                            <DropdownMenuTrigger className="relative flex items-center justify-center rounded-full bg-white/10 p-2 text-white backdrop-blur-sm transition-colors hover:bg-white/20 focus:outline-none">
+                            <DropdownMenuTrigger className="relative flex w-11 h-11 items-center justify-center rounded-full bg-white/10 p-2 text-white backdrop-blur-sm transition-colors hover:bg-white/20 focus:outline-none">
                                 <span className="sr-only">Notifications</span>
                                 <div className="relative">
-                                    <span className="text-xl">🔔</span>
+                                    <Bell className="w-5 h-5 text-white" />
                                     {invitations && invitations.length > 0 && (
                                         <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#F8B803] text-[10px] font-bold text-[#391800]">
                                             {invitations.length}
@@ -198,23 +221,23 @@ export default function Welcome({
                             </DropdownMenuContent>
                         </DropdownMenu>
 
+                        {/* Wishlist Button */}
+                        <Link
+                            href="/wishlists"
+                            className="relative flex w-11 h-11 items-center justify-center rounded-full bg-white/10 p-2 text-white backdrop-blur-sm transition-colors hover:bg-white/20 focus:outline-none"
+                        >
+                            <span className="sr-only">Mes Wishlists</span>
+                            <Heart className="w-5 h-5 text-red-200 fill-current" />
+                        </Link>
+
                         {/* User Menu */}
                         <DropdownMenu>
-                            <DropdownMenuTrigger className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-white backdrop-blur-sm transition-colors hover:bg-white/20 focus:outline-none">
+                            <DropdownMenuTrigger className="flex h-11 items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-white backdrop-blur-sm transition-colors hover:bg-white/20 focus:outline-none">
                                 <span className="font-semibold">{auth.user.name}</span>
                                 <ChevronDown className="h-4 w-4" />
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-48">
-                                <DropdownMenuItem asChild>
-                                    <Link href="/dashboard" className="w-full cursor-pointer">
-                                        Tableau de Bord
-                                    </Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem asChild>
-                                    <Link href="/wishlists" className="w-full cursor-pointer">
-                                        🎁 Mes Listes de Souhaits
-                                    </Link>
-                                </DropdownMenuItem>
+
                                 <DropdownMenuItem asChild>
                                     <Link
                                         href="/logout"
@@ -286,70 +309,91 @@ export default function Welcome({
                                 Retrouvez vos événements Secret Santa
                             </p>
 
-                            <div className="mt-8 flex justify-center">
-                                <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-                                    <DialogTrigger asChild>
-                                        <Button className="rounded-full bg-[#F8B803] px-8 py-6 text-lg font-bold text-[#391800] hover:bg-[#e0a602]">
-                                            + Créer un Groupe
-                                        </Button>
-                                    </DialogTrigger>
-                                    <DialogContent className="sm:max-w-[480px] bg-transparent border-none shadow-none p-0 overflow-visible focus:outline-none">
-                                        <div className="relative flex flex-col items-center">
-                                            {/* The Globe */}
-                                            <div className="relative w-full aspect-square rounded-full bg-gradient-to-b from-blue-50/50 to-white/40 backdrop-blur-md border-4 border-white/60 shadow-[0_0_50px_rgba(255,255,255,0.6)] flex flex-col items-center justify-center p-12 overflow-hidden z-10">
+                            <div className="mt-8 flex flex-col items-center gap-6">
+                                {/* Actions Row */}
+                                <div className="flex flex-wrap items-center justify-center gap-4">
+                                    {/* Create Group Dialog */}
+                                    <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+                                        <DialogTrigger asChild>
+                                            <Button className="rounded-full bg-[#F8B803] px-8 py-6 text-lg font-bold text-[#391800] hover:bg-[#e0a602] shadow-lg gap-1">
+                                                <Plus className="h-6 w-6" strokeWidth={3} /> Créer un Groupe
+                                            </Button>
+                                        </DialogTrigger>
+                                        <DialogContent className="sm:max-w-[480px] bg-transparent border-none shadow-none p-0 overflow-visible focus:outline-none">
+                                            <div className="relative flex flex-col items-center">
+                                                {/* The Globe */}
+                                                <div className="relative w-full aspect-square rounded-full bg-gradient-to-b from-blue-50/50 to-white/40 backdrop-blur-md border-4 border-white/60 shadow-[0_0_50px_rgba(255,255,255,0.6)] flex flex-col items-center justify-center p-12 overflow-hidden z-10">
+                                                    {/* Close Button */}
+                                                    <DialogClose className="absolute top-4 text-white/80 hover:text-white transition-colors z-50 rounded-full p-2 bg-black/20 hover:bg-black/30">
+                                                        <X className="w-6 h-6" />
+                                                    </DialogClose>
 
-                                                {/* Close Button */}
-                                                <DialogClose className="absolute top-4 text-white/80 hover:text-white transition-colors z-50 rounded-full p-2 bg-black/20 hover:bg-black/30">
-                                                    <X className="w-6 h-6" />
-                                                </DialogClose>
+                                                    {/* Internal Snow/Sparkle Effect */}
+                                                    <div className="absolute inset-0 pointer-events-none">
+                                                        <div className="absolute top-10 left-10 text-white/40 text-xs">❄</div>
+                                                        <div className="absolute top-20 right-14 text-white/30 text-xl">❅</div>
+                                                        <div className="absolute bottom-16 left-20 text-white/20 text-lg">❄</div>
+                                                    </div>
 
-                                                {/* Internal Snow/Sparkle Effect (Static for performance) */}
-                                                <div className="absolute inset-0 pointer-events-none">
-                                                    <div className="absolute top-10 left-10 text-white/40 text-xs">❄</div>
-                                                    <div className="absolute top-20 right-14 text-white/30 text-xl">❅</div>
-                                                    <div className="absolute bottom-16 left-20 text-white/20 text-lg">❄</div>
+                                                    <DialogHeader className="mb-6 text-center relative z-20">
+                                                        <DialogTitle className="font-christmas text-4xl text-[#D42426] drop-shadow-sm">Créer un Nouveau Groupe</DialogTitle>
+                                                        <DialogDescription className="text-slate-700 font-medium">
+                                                            Donnez un nom à votre groupe pour commencer.
+                                                        </DialogDescription>
+                                                    </DialogHeader>
+
+                                                    <form onSubmit={createGroup} className="w-full relative z-20">
+                                                        <div className="grid gap-4 py-4">
+                                                            <div className="flex flex-col gap-2">
+                                                                <Label htmlFor="name" className="text-center text-[#165B33] font-bold">
+                                                                    Nom du Groupe
+                                                                </Label>
+                                                                <Input
+                                                                    id="name"
+                                                                    value={createForm.data.name}
+                                                                    onChange={(e) => createForm.setData('name', e.target.value)}
+                                                                    className="col-span-3 text-center bg-white/60 border-[#165B33]/30 focus:border-[#165B33] placeholder:text-slate-500 text-black"
+                                                                    placeholder="Famille"
+                                                                />
+                                                            </div>
+                                                            {createForm.errors.name && (
+                                                                <div className="text-center text-sm text-[#D42426] font-bold bg-white/80 rounded-full px-2 py-0.5">{createForm.errors.name}</div>
+                                                            )}
+                                                        </div>
+                                                        <DialogFooter className="justify-center sm:justify-center mt-2">
+                                                            <Button type="submit" disabled={createForm.processing} className="bg-[#D42426] hover:bg-[#b01e20] text-white rounded-full px-8 shadow-lg hover:scale-105 transition-transform">
+                                                                Créer le Groupe
+                                                            </Button>
+                                                        </DialogFooter>
+                                                    </form>
                                                 </div>
 
-                                                <DialogHeader className="mb-6 text-center relative z-20">
-                                                    <DialogTitle className="font-christmas text-4xl text-[#D42426] drop-shadow-sm">Créer un Nouveau Groupe</DialogTitle>
-                                                    <DialogDescription className="text-slate-700 font-medium">
-                                                        Donnez un nom à votre groupe pour commencer.
-                                                    </DialogDescription>
-                                                </DialogHeader>
-
-                                                <form onSubmit={createGroup} className="w-full relative z-20">
-                                                    <div className="grid gap-4 py-4">
-                                                        <div className="flex flex-col gap-2">
-                                                            <Label htmlFor="name" className="text-center text-[#165B33] font-bold">
-                                                                Nom du Groupe
-                                                            </Label>
-                                                            <Input
-                                                                id="name"
-                                                                value={data.name}
-                                                                onChange={(e) => setData('name', e.target.value)}
-                                                                className="col-span-3 text-center bg-white/60 border-[#165B33]/30 focus:border-[#165B33] placeholder:text-slate-500 text-black"
-                                                                placeholder="Famille"
-                                                            />
-                                                        </div>
-                                                        {errors.name && (
-                                                            <div className="text-center text-sm text-[#D42426] font-bold bg-white/80 rounded-full px-2 py-0.5">{errors.name}</div>
-                                                        )}
-                                                    </div>
-                                                    <DialogFooter className="justify-center sm:justify-center mt-2">
-                                                        <Button type="submit" disabled={processing} className="bg-[#D42426] hover:bg-[#b01e20] text-white rounded-full px-8 shadow-lg hover:scale-105 transition-transform">
-                                                            Créer le Groupe
-                                                        </Button>
-                                                    </DialogFooter>
-                                                </form>
+                                                {/* The Base */}
+                                                <div className="w-[80%] h-24 bg-gradient-to-r from-[#8C1819] via-[#D42426] to-[#8C1819] rounded-b-[3rem] -mt-12 pt-16 relative z-0 border-x-4 border-b-4 border-[#391800]/20 shadow-2xl flex items-end justify-center pb-4">
+                                                    <div className="text-[#F8B803] font-christmas text-xl opacity-80">Ho Ho Ho !</div>
+                                                </div>
                                             </div>
+                                        </DialogContent>
+                                    </Dialog>
 
-                                            {/* The Base */}
-                                            <div className="w-[80%] h-24 bg-gradient-to-r from-[#8C1819] via-[#D42426] to-[#8C1819] rounded-b-[3rem] -mt-12 pt-16 relative z-0 border-x-4 border-b-4 border-[#391800]/20 shadow-2xl flex items-end justify-center pb-4">
-                                                <div className="text-[#F8B803] font-christmas text-xl opacity-80">Ho Ho Ho !</div>
-                                            </div>
-                                        </div>
-                                    </DialogContent>
-                                </Dialog>
+                                    {/* Join Group Form */}
+                                    <form onSubmit={handleJoin} className="flex items-center gap-2 rounded-full bg-white/10 p-1 pl-4 backdrop-blur-sm border border-white/20 shadow-lg">
+                                        <Label htmlFor="code" className="sr-only">Code du Groupe</Label>
+                                        <Input
+                                            id="code"
+                                            placeholder="Code..."
+                                            className="bg-transparent border-0 text-white placeholder:text-white/60 w-24 uppercase font-mono font-bold focus-visible:ring-0 px-0"
+                                            value={joinForm.data.code}
+                                            onChange={e => joinForm.setData('code', e.target.value)}
+                                            maxLength={6}
+                                        />
+                                        <Button type="submit" disabled={joinForm.processing} className="rounded-full bg-[#165B33] hover:bg-[#124d2b] text-white h-10 px-6">
+                                            Rejoindre
+                                        </Button>
+                                    </form>
+
+                                </div>
+                                {joinForm.errors.code && <p className="text-sm font-bold text-[#F8B803] bg-black/20 px-3 py-1 rounded-full">{joinForm.errors.code}</p>}
                             </div>
                         </div>
 
