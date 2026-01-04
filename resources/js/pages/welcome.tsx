@@ -36,11 +36,7 @@ interface Group {
     admin?: { name: string };
 }
 
-interface Wishlist {
-    id: number;
-    title: string;
-    items: { length: number }[];
-}
+
 
 interface Invitation {
     id: number;
@@ -51,12 +47,12 @@ export default function Welcome({
     canRegister = true,
     groups = [],
     invitations = [],
-    wishlists = [],
+
 }: {
     canRegister?: boolean;
     groups?: Group[];
     invitations?: Invitation[];
-    wishlists?: Wishlist[];
+
 }) {
     const { auth } = usePage<SharedData>().props;
 
