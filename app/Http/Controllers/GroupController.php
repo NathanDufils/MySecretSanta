@@ -77,6 +77,10 @@ class GroupController extends Controller
             abort(403);
         }
 
+        if ($group->status !== 'open') {
+             return redirect()->back()->withErrors(['message' => 'Cannot update group after draw.']);
+        }
+
         $validated = $request->validate([
             'description' => 'nullable|string|max:1000',
             'event_date' => 'required|date',
@@ -202,5 +206,40 @@ class GroupController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Wishlist assigned successfully.');
+    }
+    public function destroy(Request $request, Group $group)
+    {
+        if ($group->admin_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $group->delete();
+
+        return redirect()->route('dashboard')->with('success', 'Group deleted successfully.');
+    }
+
+    public function join(Request $request)
+    {
+        $validated = $request->validate([
+            'code' => 'required|string',
+        ]);
+
+        $group = Group::where('code', $validated['code'])->first();
+
+        if (!$group) {
+            return redirect()->back()->withErrors(['code' => 'Invalid group code.']);
+        }
+
+        if ($group->status !== 'open') {
+             return redirect()->back()->withErrors(['code' => 'Cannot join a closed group.']);
+        }
+
+        if ($group->participants->contains(Auth::id())) {
+             return redirect()->back()->withErrors(['code' => 'You are already in this group.']);
+        }
+
+        $group->participants()->attach(Auth::id());
+
+        return redirect()->route('groups.show', $group);
     }
 }

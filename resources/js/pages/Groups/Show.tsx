@@ -1,7 +1,7 @@
 import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
 import { type SharedData } from '@/types';
 import { useSnowflakes } from '@/hooks/useSnowflakes';
-import ChristmasTree from '@/components/ChristmasTree';
+
 import { ChevronLeft, Trash2, Settings, UserPlus, Gift, X } from 'lucide-react';
 import {
     Dialog,
@@ -18,8 +18,41 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useState } from 'react';
 
-// @ts-ignore
-export default function GroupShow({ group, participants, draw, userWishlists }: { group: any, participants: any[], draw: any, userWishlists: any[] }) {
+interface Group {
+    id: number;
+    name: string;
+    description: string;
+    event_date: string;
+    admin_id: number;
+    status: string;
+    code: string;
+}
+
+interface WishlistItem {
+    id: number;
+    name: string;
+    url?: string;
+    description?: string;
+}
+
+interface Wishlist {
+    id: number;
+    title: string;
+    items: WishlistItem[];
+}
+
+interface Participant {
+    id: number;
+    name: string;
+    assigned_wishlist?: Wishlist;
+}
+
+interface Draw {
+    target_id: number;
+    target?: Participant;
+}
+
+export default function GroupShow({ group, participants, draw, userWishlists }: { group: Group, participants: Participant[], draw: Draw, userWishlists: Wishlist[] }) {
     const { auth } = usePage<SharedData>().props;
     const snowflakes = useSnowflakes(20);
     const isAdmin = group.admin_id === auth.user.id;
@@ -30,8 +63,7 @@ export default function GroupShow({ group, participants, draw, userWishlists }: 
 
     const handleAssign = (wishlistId: string) => {
         setWishlistLoading(true);
-        // @ts-ignore
-        // @ts-ignore
+
         router.post(`/groups/${group.id}/wishlist`, { wishlist_id: wishlistId }, {
             onFinish: () => setWishlistLoading(false),
             preserveScroll: true,
@@ -81,7 +113,7 @@ export default function GroupShow({ group, participants, draw, userWishlists }: 
         }
     };
 
-    const myWishlist = participants.find((p: any) => p.id === auth.user.id)?.assigned_wishlist;
+    const myWishlist = participants.find((p: Participant) => p.id === auth.user.id)?.assigned_wishlist;
 
     return (
         <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-[#D42426] to-[#8C1819] text-white selection:bg-[#F8B803] selection:text-[#391800] pb-20">
@@ -123,6 +155,14 @@ export default function GroupShow({ group, participants, draw, userWishlists }: 
                     <p className="text-red-100 mb-4">
                         Échange de cadeaux : {new Date(group.event_date).toLocaleDateString('fr-FR', { dateStyle: 'long' })}
                     </p>
+
+                    <div className="mb-6 inline-flex items-center gap-3 rounded-xl bg-white/20 px-6 py-3 backdrop-blur-md border border-white/30 shadow-lg">
+                        <div className="text-right">
+                            <p className="text-xs font-bold text-white/60 uppercase tracking-widest">Code Groupe</p>
+                            <p className="text-2xl font-mono font-bold text-[#F8B803] tracking-wider select-all">{group.code}</p>
+                        </div>
+                    </div>
+
                     {group.description && <p className="text-white/80 max-w-2xl mb-6">{group.description}</p>}
 
                     {isAdmin && (
@@ -148,6 +188,23 @@ export default function GroupShow({ group, participants, draw, userWishlists }: 
                                                 <Label htmlFor="desc" className="text-right">Description</Label>
                                                 <Input id="desc" className="col-span-3" value={updateForm.data.description} onChange={e => updateForm.setData('description', e.target.value)} />
                                             </div>
+                                        </div>
+                                        <div className="mt-4 border-t border-gray-100 pt-4">
+                                            <h4 className="text-sm font-semibold text-red-600 mb-2">Zone Danger</h4>
+                                            <Button
+                                                type="button"
+                                                variant="destructive"
+                                                className="w-full bg-red-100 text-red-600 hover:bg-red-200"
+                                                onClick={() => {
+                                                    if (confirm('Êtes-vous ABSOLUMENT sûr ? Cette action supprimera le groupe et toutes les données associées.')) {
+                                                        // Using hardcoded path since Ziggy/Wayfinder setup is uncertain
+                                                        router.delete(`/groups/${group.id}`);
+                                                    }
+                                                }}
+                                            >
+                                                <Trash2 className="mr-2 h-4 w-4" />
+                                                Supprimer ce Groupe
+                                            </Button>
                                         </div>
                                         <DialogFooter>
                                             <Button type="submit" className="bg-[#D42426] text-white hover:bg-[#b01e20]">Enregistrer</Button>
@@ -259,8 +316,8 @@ export default function GroupShow({ group, participants, draw, userWishlists }: 
                                             </p>
                                             <ul className="list-inside list-disc space-y-1 text-green-50">
                                                 {/* Find target in participants list to get their wishlist */}
-                                                {participants.find((p: any) => p.id === draw.target_id)?.assigned_wishlist?.items?.length > 0 ? (
-                                                    participants.find((p: any) => p.id === draw.target_id)?.assigned_wishlist?.items.map((item: any) => (
+                                                {participants.find((p: Participant) => p.id === draw.target_id)?.assigned_wishlist?.items?.length ? (
+                                                    participants.find((p: Participant) => p.id === draw.target_id)?.assigned_wishlist?.items.map((item: WishlistItem) => (
                                                         <li key={item.id}>
                                                             <span className="font-medium">{item.name}</span>
                                                             {item.url && (
@@ -297,15 +354,15 @@ export default function GroupShow({ group, participants, draw, userWishlists }: 
                                     disabled={wishlistLoading}
                                 >
                                     <option value="" className="text-black">-- Aucune liste sélectionnée --</option>
-                                    {userWishlists.map((list: any) => (
+                                    {userWishlists.map((list: Wishlist) => (
                                         <option key={list.id} value={list.id} className="text-black">{list.title} ({list.items?.length || 0} objets)</option>
                                     ))}
                                 </select>
                             </div>
 
-                            {myWishlist?.items?.length > 0 ? (
+                            {myWishlist?.items && myWishlist.items.length > 0 ? (
                                 <ul className="space-y-3 mb-6 max-h-60 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/30 scrollbar-track-transparent">
-                                    {myWishlist.items.map((item: any) => (
+                                    {myWishlist.items.map((item: WishlistItem) => (
                                         <li key={item.id} className="flex items-center gap-3 rounded-lg bg-white/5 p-3 hover:bg-white/10 transition-colors">
                                             <span className="text-2xl">🎁</span>
                                             <div className="flex-1 min-w-0">
@@ -324,8 +381,8 @@ export default function GroupShow({ group, participants, draw, userWishlists }: 
                                 </div>
                             )}
 
-                            {/* @ts-ignore */}
-                            {/* @ts-ignore */}
+
+
                             <Link href="/wishlists" className="block w-full text-center rounded-full bg-white py-3 font-bold text-[#D42426] hover:bg-gray-100 transition-colors shadow-md hover:scale-[1.02] active:scale-95">
                                 Gérer mes Listes
                             </Link>
@@ -343,7 +400,7 @@ export default function GroupShow({ group, participants, draw, userWishlists }: 
                         </div>
 
                         <div className="grid gap-4">
-                            {participants.map((participant: any) => (
+                            {participants.map((participant: Participant) => (
                                 <div key={participant.id} className={`flex items-start gap-4 rounded-xl p-4 transition-all ${participant.id === auth.user.id ? 'bg-[#F8B803]/20 border border-[#F8B803]/50' : 'bg-white/5 border border-white/10'}`}>
                                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/20 text-lg font-bold">
                                         {participant.name.charAt(0)}
@@ -369,9 +426,9 @@ export default function GroupShow({ group, participants, draw, userWishlists }: 
                                             <p className="text-xs font-semibold uppercase tracking-wider text-white/60 mb-1">
                                                 Liste :
                                             </p>
-                                            {participant.assigned_wishlist?.items?.length > 0 ? (
+                                            {participant.assigned_wishlist?.items && participant.assigned_wishlist.items.length > 0 ? (
                                                 <ul className="text-sm space-y-1 text-red-50">
-                                                    {participant.assigned_wishlist.items.map((item: any) => (
+                                                    {participant.assigned_wishlist?.items.map((item: WishlistItem) => (
                                                         <li key={item.id} className="flex items-center gap-1.5 truncate">
                                                             <span className="block h-1.5 w-1.5 rounded-full bg-[#F8B803]" />
                                                             {item.name}

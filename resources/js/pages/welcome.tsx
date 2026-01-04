@@ -1,4 +1,4 @@
-import { dashboard, login, register, logout } from '@/routes';
+// import { dashboard, login, register, logout } from '@/routes';
 import ChristmasTree from '@/components/ChristmasTree';
 import {
     DropdownMenu,
@@ -11,7 +11,7 @@ import { type SharedData } from '@/types';
 import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
 
 import { useSnowflakes } from '@/hooks/useSnowflakes';
-import { ChevronRight, Users, Gift, Snowflake, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import {
     Dialog,
     DialogContent,
@@ -27,14 +27,29 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { FormEventHandler, useState } from 'react';
 
+interface Group {
+    id: number;
+    name: string;
+    description: string;
+    event_date: string;
+    admin_id: number;
+    status: string;
+    admin?: { name: string };
+}
+
+interface Invitation {
+    id: number;
+    group: Group;
+}
+
 export default function Welcome({
     canRegister = true,
     groups = [],
     invitations = [],
 }: {
     canRegister?: boolean;
-    groups?: any[];
-    invitations?: any[];
+    groups?: Group[];
+    invitations?: Invitation[];
 }) {
     const { auth } = usePage<SharedData>().props;
 
@@ -145,7 +160,7 @@ export default function Welcome({
                                 </div>
                                 <div className="max-h-[300px] overflow-y-auto p-2 space-y-2">
                                     {invitations && invitations.length > 0 ? (
-                                        invitations.map((invite: any) => (
+                                        invitations.map((invite: Invitation) => (
                                             <div key={invite.id} className="bg-white/50 rounded-xl p-3 border border-gray-100 shadow-sm">
                                                 <div className="mb-2">
                                                     <p className="font-bold text-gray-800 text-sm">
@@ -191,7 +206,7 @@ export default function Welcome({
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-48">
                                 <DropdownMenuItem asChild>
-                                    <Link href={dashboard()} className="w-full cursor-pointer">
+                                    <Link href="/dashboard" className="w-full cursor-pointer">
                                         Tableau de Bord
                                     </Link>
                                 </DropdownMenuItem>
@@ -202,7 +217,7 @@ export default function Welcome({
                                 </DropdownMenuItem>
                                 <DropdownMenuItem asChild>
                                     <Link
-                                        href={logout()}
+                                        href="/logout"
                                         method="post"
                                         as="button"
                                         className="w-full cursor-pointer"
@@ -241,7 +256,7 @@ export default function Welcome({
                             {/* Action Buttons */}
                             <div className="flex flex-col gap-4 sm:flex-row sm:gap-6 animate-fade-in-up delay-200">
                                 <Link
-                                    href={login()}
+                                    href="/login"
                                     className="group relative inline-flex min-w-[160px] items-center justify-center overflow-hidden rounded-full bg-white px-8 py-3 font-bold text-[#D42426] shadow-lg transition-transform hover:scale-105 hover:bg-gray-50 focus:outline-none focus:ring-4 focus:ring-white/50"
                                 >
                                     <span className="relative z-10">Connexion</span>
@@ -249,7 +264,7 @@ export default function Welcome({
 
                                 {canRegister && (
                                     <Link
-                                        href={register()}
+                                        href="/register"
                                         className="group relative inline-flex min-w-[160px] items-center justify-center overflow-hidden rounded-full bg-[#F8B803] px-8 py-3 font-bold text-[#391800] shadow-lg transition-transform hover:scale-105 hover:bg-[#e0a602] focus:outline-none focus:ring-4 focus:ring-[#F8B803]/50"
                                     >
                                         <span className="relative z-10">Commencer</span>

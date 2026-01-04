@@ -3,18 +3,30 @@ import { Head, useForm, router } from '@inertiajs/react';
 import { Trash2, Plus, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 
-export default function Index({ wishlists }: { wishlists: any[] }) {
-    const { data, setData, post, processing, reset, errors } = useForm({
+interface WishlistItem {
+    id: number;
+    name: string;
+    url?: string;
+    description?: string;
+}
+
+interface Wishlist {
+    id: number;
+    title: string;
+    items: WishlistItem[];
+}
+
+export default function Index({ wishlists }: { wishlists: Wishlist[] }) {
+    const { data, setData, post, processing, reset } = useForm({
         title: '',
     });
 
-    const [selectedWishlistId, setSelectedWishlistId] = useState<any>(wishlists.length > 0 ? wishlists[0].id : null);
+    const [selectedWishlistId, setSelectedWishlistId] = useState<number | null>(wishlists.length > 0 ? wishlists[0].id : null);
 
-    const selectedWishlist = wishlists.find((list: any) => list.id === selectedWishlistId) || (wishlists.length > 0 ? wishlists[0] : null);
+    const selectedWishlist = wishlists.find((list: Wishlist) => list.id === selectedWishlistId) || (wishlists.length > 0 ? wishlists[0] : null);
 
-    const submit = (e: any) => {
+    const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        // @ts-ignore
         post('/wishlists', {
             onSuccess: () => {
                 reset();
@@ -24,9 +36,8 @@ export default function Index({ wishlists }: { wishlists: any[] }) {
         });
     };
 
-    const deleteWishlist = (id: any) => {
+    const deleteWishlist = (id: number) => {
         if (confirm('Are you sure?')) {
-            // @ts-ignore
             router.delete(`/wishlists/${id}`);
             if (selectedWishlistId === id) {
                 setSelectedWishlistId(null);
@@ -70,7 +81,7 @@ export default function Index({ wishlists }: { wishlists: any[] }) {
                             </form>
 
                             <ul className="space-y-2">
-                                {wishlists.map((list: any) => (
+                                {wishlists.map((list: Wishlist) => (
                                     <li
                                         key={list.id}
                                         className={`flex justify-between items-center p-3 rounded-md cursor-pointer ${selectedWishlist?.id === list.id ? 'bg-indigo-50 border border-indigo-200' : 'hover:bg-gray-50 border border-transparent'}`}
@@ -103,26 +114,23 @@ export default function Index({ wishlists }: { wishlists: any[] }) {
     );
 }
 
-function WishlistItems({ wishlist }: { wishlist: any }) {
+function WishlistItems({ wishlist }: { wishlist: Wishlist }) {
     const { data, setData, post, processing, reset, errors } = useForm({
         name: '',
         url: '',
         description: ''
     });
 
-    const submitItem = (e: any) => {
+    const submitItem = (e: React.FormEvent) => {
         e.preventDefault();
-        // @ts-ignore
         post(`/wishlists/${wishlist.id}/items`, {
             preserveScroll: true,
             onSuccess: () => reset(),
         });
     };
 
-    const deleteItem = (itemId: any) => {
+    const deleteItem = (itemId: number) => {
         if (confirm('Remove this item?')) {
-            // @ts-ignore
-            // @ts-ignore
             router.delete(`/wishlists/${wishlist.id}/items/${itemId}`, {
                 preserveScroll: true,
             });
@@ -188,7 +196,7 @@ function WishlistItems({ wishlist }: { wishlist: any }) {
                     <p className="text-center text-gray-400 italic">No items yet. Add something you want!</p>
                 )}
 
-                {wishlist.items.map((item: any) => (
+                {wishlist.items.map((item: WishlistItem) => (
                     <div key={item.id} className="border rounded-lg p-4 flex justify-between items-start hover:shadow-sm transition-shadow">
                         <div>
                             <h4 className="font-semibold text-lg flex items-center gap-2">
@@ -202,7 +210,7 @@ function WishlistItems({ wishlist }: { wishlist: any }) {
                             {item.description && <p className="text-gray-600 mt-1 text-sm">{item.description}</p>}
                         </div>
                         <button
-                            onClick={() => deleteItem(item.id)}
+                            onClick={() => deleteItem(Number(item.id))}
                             className="text-gray-400 hover:text-red-500 p-1"
                         >
                             <Trash2 className="w-5 h-5" />

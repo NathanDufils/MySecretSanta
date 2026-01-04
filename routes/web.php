@@ -22,6 +22,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/groups/{group}', [\App\Http\Controllers\GroupController::class, 'show'])->name('groups.show');
     Route::post('/groups', [\App\Http\Controllers\GroupController::class, 'store'])->name('groups.store');
+    Route::delete('/groups/{group}', [\App\Http\Controllers\GroupController::class, 'destroy'])->name('groups.destroy');
+    Route::post('/groups/join', [\App\Http\Controllers\GroupController::class, 'join'])->name('groups.join');
     
     Route::put('/groups/{group}', [\App\Http\Controllers\GroupController::class, 'update'])->name('groups.update');
     Route::post('/groups/{group}/participants', [\App\Http\Controllers\GroupController::class, 'addParticipant'])->name('groups.participants.add');
