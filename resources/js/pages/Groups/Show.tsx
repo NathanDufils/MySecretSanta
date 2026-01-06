@@ -23,6 +23,7 @@ interface Group {
     name: string;
     description: string;
     event_date: string;
+    max_budget?: number;
     admin_id: number;
     status: string;
     code: string;
@@ -73,9 +74,11 @@ export default function GroupShow({ group, participants, draw, userWishlists }: 
     const updateForm = useForm<{
         description: string;
         event_date: string;
+        max_budget: string;
     }>({
         description: group.description || '',
         event_date: group.event_date ? new Date(group.event_date).toISOString().split('T')[0] : '',
+        max_budget: group.max_budget ? String(group.max_budget) : '',
     });
 
     const inviteForm = useForm<{
@@ -156,6 +159,12 @@ export default function GroupShow({ group, participants, draw, userWishlists }: 
                         Échange de cadeaux : {new Date(group.event_date).toLocaleDateString('fr-FR', { dateStyle: 'long' })}
                     </p>
 
+                    {group.max_budget && (
+                        <p className="text-[#F8B803] font-bold text-lg mb-4">
+                            💰 Budget Maximum : {group.max_budget} €
+                        </p>
+                    )}
+
                     <div className="mb-6 inline-flex items-center gap-3 rounded-xl bg-white/20 px-6 py-3 backdrop-blur-md border border-white/30 shadow-lg">
                         <div className="text-right">
                             <p className="text-xs font-bold text-white/60 uppercase tracking-widest">Code Groupe</p>
@@ -173,7 +182,7 @@ export default function GroupShow({ group, participants, draw, userWishlists }: 
                                         <Settings className="h-4 w-4" /> Paramètres
                                     </Button>
                                 </DialogTrigger>
-                                <DialogContent className="text-black sm:max-w-[425px]">
+                                <DialogContent className="text-black dark:text-white dark:bg-gray-900 sm:max-w-[425px]">
                                     <DialogHeader>
                                         <DialogTitle>Paramètres du Groupe</DialogTitle>
                                         <DialogDescription>Modifier les détails du groupe.</DialogDescription>
@@ -188,13 +197,26 @@ export default function GroupShow({ group, participants, draw, userWishlists }: 
                                                 <Label htmlFor="desc" className="text-right">Description</Label>
                                                 <Input id="desc" className="col-span-3" value={updateForm.data.description} onChange={e => updateForm.setData('description', e.target.value)} />
                                             </div>
+                                            <div className="grid grid-cols-4 items-center gap-4">
+                                                <Label htmlFor="budget" className="text-right">Budget Max (€)</Label>
+                                                <Input
+                                                    id="budget"
+                                                    type="number"
+                                                    min="0"
+                                                    step="1"
+                                                    placeholder="Ex: 50"
+                                                    className="col-span-3"
+                                                    value={updateForm.data.max_budget}
+                                                    onChange={e => updateForm.setData('max_budget', e.target.value)}
+                                                />
+                                            </div>
                                         </div>
                                         <div className="mt-4 border-t border-gray-100 pt-4">
                                             <h4 className="text-sm font-semibold text-red-600 mb-2">Zone Danger</h4>
                                             <Button
                                                 type="button"
                                                 variant="destructive"
-                                                className="w-full bg-red-100 text-red-600 hover:bg-red-200"
+                                                className="w-full bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
                                                 onClick={() => {
                                                     if (confirm('Êtes-vous ABSOLUMENT sûr ? Cette action supprimera le groupe et toutes les données associées.')) {
                                                         // Using hardcoded path since Ziggy/Wayfinder setup is uncertain
@@ -207,7 +229,7 @@ export default function GroupShow({ group, participants, draw, userWishlists }: 
                                             </Button>
                                         </div>
                                         <DialogFooter>
-                                            <Button type="submit" className="bg-[#D42426] text-white hover:bg-[#b01e20]">Enregistrer</Button>
+                                            <Button type="submit" className="bg-[#D42426] text-white hover:bg-[#b01e20] dark:bg-red-700 dark:hover:bg-red-600">Enregistrer</Button>
                                         </DialogFooter>
                                     </form>
                                 </DialogContent>
@@ -264,7 +286,7 @@ export default function GroupShow({ group, participants, draw, userWishlists }: 
                                                     )}
                                                 </div>
                                                 <DialogFooter className="justify-center sm:justify-center mt-2">
-                                                    <Button type="submit" disabled={inviteForm.processing} className="bg-[#D42426] hover:bg-[#b01e20] text-white rounded-full px-8 shadow-lg hover:scale-105 transition-transform">
+                                                    <Button type="submit" disabled={inviteForm.processing} className="bg-[#D42426] hover:bg-[#b01e20] text-white rounded-full px-8 shadow-lg hover:scale-105 transition-transform dark:bg-red-700 dark:hover:bg-red-600">
                                                         Envoyer l'invitation
                                                     </Button>
                                                 </DialogFooter>
@@ -282,7 +304,7 @@ export default function GroupShow({ group, participants, draw, userWishlists }: 
                             {group.status === 'open' && (
                                 <Button
                                     onClick={handleDraw}
-                                    className="bg-[#F8B803] text-[#391800] hover:bg-[#e0a602] font-bold gap-2"
+                                    className="bg-[#F8B803] text-[#391800] hover:bg-[#e0a602] font-bold gap-2 dark:bg-yellow-600 dark:text-white dark:hover:bg-yellow-700"
                                     disabled={participants.length < 3}
                                 >
                                     <Gift className="h-4 w-4" />
@@ -346,16 +368,16 @@ export default function GroupShow({ group, participants, draw, userWishlists }: 
                             </h2>
 
                             <div className="mb-6">
-                                <label className="block text-sm font-medium text-white/80 mb-2">Choisir la liste pour ce groupe :</label>
+                                <label className="block text-sm font-medium text-white/80 dark:text-gray-300 mb-2">Choisir la liste pour ce groupe :</label>
                                 <select
-                                    className="w-full rounded-lg bg-white/20 border-white/10 text-white focus:ring-[#F8B803] focus:border-[#F8B803] focus:bg-white/30 transition-colors"
+                                    className="w-full rounded-lg bg-white/20 dark:bg-gray-800/80 border-white/10 dark:border-gray-600 text-white focus:ring-[#F8B803] dark:focus:ring-blue-500 focus:border-[#F8B803] dark:focus:border-blue-500 focus:bg-white/30 dark:focus:bg-gray-700/90 transition-colors"
                                     value={myWishlist?.id || ''}
                                     onChange={(e) => handleAssign(e.target.value)}
                                     disabled={wishlistLoading}
                                 >
-                                    <option value="" className="text-black">-- Aucune liste sélectionnée --</option>
+                                    <option value="" className="text-black dark:text-white dark:bg-gray-800">-- Aucune liste sélectionnée --</option>
                                     {userWishlists.map((list: Wishlist) => (
-                                        <option key={list.id} value={list.id} className="text-black">{list.title} ({list.items?.length || 0} objets)</option>
+                                        <option key={list.id} value={list.id} className="text-black dark:text-white dark:bg-gray-800">{list.title} ({list.items?.length || 0} objets)</option>
                                     ))}
                                 </select>
                             </div>
@@ -383,7 +405,7 @@ export default function GroupShow({ group, participants, draw, userWishlists }: 
 
 
 
-                            <Link href="/wishlists" className="block w-full text-center rounded-full bg-white py-3 font-bold text-[#D42426] hover:bg-gray-100 transition-colors shadow-md hover:scale-[1.02] active:scale-95">
+                            <Link href="/wishlists" className="block w-full text-center rounded-full bg-white py-3 font-bold text-[#D42426] hover:bg-gray-100 transition-colors shadow-md hover:scale-[1.02] active:scale-95 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-gray-700">
                                 Gérer mes Listes
                             </Link>
                         </div>

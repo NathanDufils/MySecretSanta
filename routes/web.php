@@ -9,21 +9,21 @@ Route::get('/', function () {
     return Inertia::render('welcome', [
         'canRegister' => Features::enabled(Features::registration()),
         'groups' => Auth::user()?->groups ?? [],
-        'wishlists' => Auth::user()?->wishlists ?? [],
-        'invitations' => Auth::user() 
-            ? \App\Models\Invitation::where('email', Auth::user()->email)->with('group.admin')->get() 
+        'invitations' => Auth::user()
+            ? \App\Models\Invitation::where('email', Auth::user()->email)->with('group.admin')->get()
             : [],
     ]);
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::redirect('/dashboard', '/');
+    Route::get('dashboard', function () {
+        return Inertia::render('dashboard');
+    })->name('dashboard');
 
     Route::get('/groups/{group}', [\App\Http\Controllers\GroupController::class, 'show'])->name('groups.show');
     Route::post('/groups', [\App\Http\Controllers\GroupController::class, 'store'])->name('groups.store');
     Route::delete('/groups/{group}', [\App\Http\Controllers\GroupController::class, 'destroy'])->name('groups.destroy');
-    Route::post('/groups/join', [\App\Http\Controllers\GroupController::class, 'join'])->name('groups.join');
-    
+
     Route::put('/groups/{group}', [\App\Http\Controllers\GroupController::class, 'update'])->name('groups.update');
     Route::post('/groups/{group}/participants', [\App\Http\Controllers\GroupController::class, 'addParticipant'])->name('groups.participants.add');
     Route::post('/invitations/{invitation}/accept', [\App\Http\Controllers\InvitationController::class, 'accept'])->name('invitations.accept');

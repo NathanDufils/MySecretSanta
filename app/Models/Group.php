@@ -9,7 +9,7 @@ class Group extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'description', 'event_date', 'code', 'status', 'admin_id'];
+    protected $fillable = ['name', 'description', 'event_date', 'max_budget', 'code', 'status', 'admin_id'];
 
     public function admin()
     {

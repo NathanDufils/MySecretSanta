@@ -20,7 +20,7 @@ class GroupController extends Controller
 
         // Load participants
         $participants = $group->participants;
-        
+
         // Manually load wishlists to ensure we get the specific one assigned to this group
         // avoiding N+1 cleanly by collecting IDs first
         $wishlistIds = $participants->pluck('pivot.wishlist_id')->filter();
@@ -54,7 +54,7 @@ class GroupController extends Controller
         // Calculate next Christmas
         $now = now();
         $christmas = \Carbon\Carbon::create($now->year, 12, 25);
-        
+
         if ($now->greaterThanOrEqualTo($christmas)) {
             $christmas->addYear();
         }
@@ -77,13 +77,10 @@ class GroupController extends Controller
             abort(403);
         }
 
-        if ($group->status !== 'open') {
-             return redirect()->back()->withErrors(['message' => 'Cannot update group after draw.']);
-        }
-
         $validated = $request->validate([
             'description' => 'nullable|string|max:1000',
             'event_date' => 'required|date',
+            'max_budget' => 'nullable|integer|min:0',
         ]);
 
         $group->update($validated);
@@ -162,14 +159,11 @@ class GroupController extends Controller
             return redirect()->back()->withErrors(['message' => 'Draw already happened.']);
         }
 
-        // Simple Secret Santa Algorithm
-        $participants = $group->participants->pluck('id')->shuffle();
-        $count = $participants->count();
+        // Improved Random Secret Santa Algorithm
+        $participantIds = $group->participants->pluck('id')->toArray();
+        $assignments = $this->generateRandomSecretSanta($participantIds);
 
-        for ($i = 0; $i < $count; $i++) {
-            $santaId = $participants[$i];
-            $targetId = $participants[($i + 1) % $count];
-
+        foreach ($assignments as $santaId => $targetId) {
             Draw::create([
                 'group_id' => $group->id,
                 'santa_id' => $santaId,
@@ -180,6 +174,49 @@ class GroupController extends Controller
         $group->update(['status' => 'drawn']);
 
         return redirect()->back();
+    }
+
+    /**
+     * Generate a random Secret Santa assignment ensuring no one gets themselves
+     * Uses a derangement algorithm with shuffling and validation
+     */
+    private function generateRandomSecretSanta(array $participantIds): array
+    {
+        $maxAttempts = 100;
+        $count = count($participantIds);
+
+        for ($attempt = 0; $attempt < $maxAttempts; $attempt++) {
+            $santas = $participantIds;
+            $targets = $participantIds;
+
+            // Shuffle targets to create randomness
+            shuffle($targets);
+
+            $assignments = [];
+            $valid = true;
+
+            // Check if this shuffling creates a valid derangement (no one gets themselves)
+            for ($i = 0; $i < $count; $i++) {
+                if ($santas[$i] === $targets[$i]) {
+                    $valid = false;
+                    break;
+                }
+                $assignments[$santas[$i]] = $targets[$i];
+            }
+
+            if ($valid) {
+                return $assignments;
+            }
+        }
+
+        // Fallback: use circular shift method if random attempts fail
+        $assignments = [];
+        shuffle($participantIds);
+        for ($i = 0; $i < $count; $i++) {
+            $assignments[$participantIds[$i]] = $participantIds[($i + 1) % $count];
+        }
+
+        return $assignments;
     }
 
     public function assignWishlist(Request $request, Group $group)
@@ -207,39 +244,15 @@ class GroupController extends Controller
 
         return redirect()->back()->with('success', 'Wishlist assigned successfully.');
     }
-    public function destroy(Request $request, Group $group)
+
+    public function destroy(Group $group)
     {
         if ($group->admin_id !== Auth::id()) {
-            abort(403);
+            abort(403, 'Only the admin can delete the group.');
         }
 
         $group->delete();
 
-        return redirect()->route('dashboard')->with('success', 'Group deleted successfully.');
-    }
-
-    public function join(Request $request)
-    {
-        $validated = $request->validate([
-            'code' => 'required|string',
-        ]);
-
-        $group = Group::where('code', $validated['code'])->first();
-
-        if (!$group) {
-            return redirect()->back()->withErrors(['code' => 'Invalid group code.']);
-        }
-
-        if ($group->status !== 'open') {
-             return redirect()->back()->withErrors(['code' => 'Cannot join a closed group.']);
-        }
-
-        if ($group->participants->contains(Auth::id())) {
-             return redirect()->back()->withErrors(['code' => 'You are already in this group.']);
-        }
-
-        $group->participants()->attach(Auth::id());
-
-        return redirect()->route('groups.show', $group);
+        return redirect('/')->with('success', 'Group deleted successfully.');
     }
 }
