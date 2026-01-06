@@ -130,7 +130,6 @@ export default function Index({ wishlists }: { wishlists: Wishlist[] }) {
                                 <WishlistItems wishlist={selectedWishlist} />
                             ) : (
                                 <div className="flex flex-col items-center justify-center h-full text-center py-10 opacity-60">
-                                    <span className="text-6xl mb-4">🎁</span>
                                     <p className="text-lg">Sélectionnez ou créez une liste pour commencer.</p>
                                 </div>
                             )}
