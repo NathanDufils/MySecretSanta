@@ -324,7 +324,7 @@ export default function GroupShow({ group, participants, draw, userWishlists }: 
                         <div className="rounded-2xl bg-[#165B33] p-8 shadow-xl border-4 border-[#F8B803]/50 relative overflow-hidden group hover:scale-[1.02] transition-transform">
                             <div className="relative z-10">
                                 <h2 className="font-christmas mb-4 text-3xl font-bold text-[#F8B803]">
-                                    🤫 Votre Mission Secrète
+                                    Votre Mission Secrète
                                 </h2>
                                 {draw ? (
                                     <div>
@@ -364,7 +364,7 @@ export default function GroupShow({ group, participants, draw, userWishlists }: 
                         {/* MY WISHLIST CARD */}
                         <div className="rounded-2xl bg-white/10 backdrop-blur-md p-8 shadow-lg border border-white/20">
                             <h2 className="font-christmas mb-4 text-3xl font-bold text-white">
-                                📝 Votre Liste de Souhaits
+                                Votre Liste de Souhaits
                             </h2>
 
                             <div className="mb-6">
@@ -416,9 +416,8 @@ export default function GroupShow({ group, participants, draw, userWishlists }: 
                     <div className="rounded-2xl bg-white/10 backdrop-blur-md p-8 shadow-lg border border-white/20">
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="font-christmas text-3xl font-bold text-white">
-                                👥 Participants ({participants.length})
+                                Participants ({participants.length})
                             </h2>
-                            <span className="text-2xl">🎄</span>
                         </div>
 
                         <div className="grid gap-4">
