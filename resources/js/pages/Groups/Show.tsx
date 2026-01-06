@@ -159,9 +159,9 @@ export default function GroupShow({ group, participants, draw, userWishlists }: 
                         Échange de cadeaux : {new Date(group.event_date).toLocaleDateString('fr-FR', { dateStyle: 'long' })}
                     </p>
 
-                    {group.max_budget && (
+                    {group.max_budget !== undefined && group.max_budget !== null && (
                         <p className="text-[#F8B803] font-bold text-lg mb-4">
-                            💰 Budget Maximum : {group.max_budget} €
+                            Budget Maximum : {group.max_budget} €
                         </p>
                     )}
 
@@ -386,7 +386,6 @@ export default function GroupShow({ group, participants, draw, userWishlists }: 
                                 <ul className="space-y-3 mb-6 max-h-60 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/30 scrollbar-track-transparent">
                                     {myWishlist.items.map((item: WishlistItem) => (
                                         <li key={item.id} className="flex items-center gap-3 rounded-lg bg-white/5 p-3 hover:bg-white/10 transition-colors">
-                                            <span className="text-2xl">🎁</span>
                                             <div className="flex-1 min-w-0">
                                                 <p className="font-semibold truncate">{item.name}</p>
                                                 {item.url && <a href={item.url} target="_blank" rel="noreferrer" className="text-xs text-[#F8B803] hover:underline truncate block flex items-center gap-1">
