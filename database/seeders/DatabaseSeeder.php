@@ -56,27 +56,27 @@ class DatabaseSeeder extends Seeder
 
         // 7. Organize the Secret Santa Draw
         // Collect all group members (Admin + Participants)
-        $allParticipants = $group->participants()->get();
+        // $allParticipants = $group->participants()->get();
 
         // Simple algorithm to shuffle and assign
         // We shuffle the collection and link item N to N+1, and Last to First.
-        $shuffled = $allParticipants->shuffle();
+        // $shuffled = $allParticipants->shuffle();
 
-        $count = $shuffled->count();
-        if ($count < 2) {
-            return; // Not enough people for a draw
-        }
+        // $count = $shuffled->count();
+        // if ($count < 2) {
+        //     return; // Not enough people for a draw
+        // }
 
-        for ($i = 0; $i < $count; $i++) {
-            $santa = $shuffled[$i];
-            // If it's the last person, they give to the first person
-            $target = ($i === $count - 1) ? $shuffled[0] : $shuffled[$i + 1];
+        // for ($i = 0; $i < $count; $i++) {
+        //     $santa = $shuffled[$i];
+        //     // If it's the last person, they give to the first person
+        //     $target = ($i === $count - 1) ? $shuffled[0] : $shuffled[$i + 1];
 
-            \App\Models\Draw::create([
-                'group_id' => $group->id,
-                'santa_id' => $santa->id,
-                'target_id' => $target->id,
-            ]);
-        }
+        //     \App\Models\Draw::create([
+        //         'group_id' => $group->id,
+        //         'santa_id' => $santa->id,
+        //         'target_id' => $target->id,
+        //     ]);
+        // }
     }
 }
