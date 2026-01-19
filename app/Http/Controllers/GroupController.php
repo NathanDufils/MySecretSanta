@@ -4,19 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\Draw;
 use App\Models\Group;
+use App\Models\Invitation;
+use App\Models\User;
 use App\Models\Wishlist;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class GroupController extends Controller
 {
     public function show(Group $group)
     {
-        // Ensure user belongs to the group
-        if (!$group->participants->contains(Auth::id())) {
-            abort(403);
-        }
+        $this->authorize('view', $group);
 
         // Load participants
         $participants = $group->participants;
@@ -45,6 +45,7 @@ class GroupController extends Controller
             'userWishlists' => Auth::user()->wishlists()->with('items')->get(),
         ]);
     }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -62,7 +63,7 @@ class GroupController extends Controller
         $group = Group::create([
             'name' => $validated['name'],
             'event_date' => $christmas,
-            'code' => \Illuminate\Support\Str::upper(\Illuminate\Support\Str::random(6)),
+            'code' => Str::upper(Str::random(6)),
             'admin_id' => Auth::id(),
         ]);
 
@@ -73,9 +74,7 @@ class GroupController extends Controller
 
     public function update(Request $request, Group $group)
     {
-        if ($group->admin_id !== Auth::id()) {
-            abort(403);
-        }
+        $this->authorize('update', $group);
 
         $validated = $request->validate([
             'description' => 'nullable|string|max:1000',
@@ -90,26 +89,20 @@ class GroupController extends Controller
 
     public function addParticipant(Request $request, Group $group)
     {
-        if ($group->admin_id !== Auth::id()) {
-            abort(403);
-        }
-
-        if ($group->status !== 'open') {
-            return redirect()->back()->withErrors(['message' => 'Cannot add members after draw.']);
-        }
+        $this->authorize('addParticipant', $group);
 
         $validated = $request->validate([
             'email' => 'required|email',
         ]);
 
         // Check if already participant
-        $existingUser = \App\Models\User::where('email', $validated['email'])->first();
+        $existingUser = User::where('email', $validated['email'])->first();
         if ($existingUser && $group->participants->contains($existingUser->id)) {
-             return redirect()->back()->withErrors(['email' => 'This user is already in the group.']);
+            return redirect()->back()->withErrors(['email' => 'This user is already in the group.']);
         }
 
         // Check if already invited
-        $existingInvitation = \App\Models\Invitation::where('group_id', $group->id)
+        $existingInvitation = Invitation::where('group_id', $group->id)
             ->where('email', $validated['email'])
             ->first();
 
@@ -117,27 +110,21 @@ class GroupController extends Controller
             return redirect()->back()->withErrors(['email' => 'Invitation already sent to this email.']);
         }
 
-        \App\Models\Invitation::create([
+        Invitation::create([
             'group_id' => $group->id,
             'email' => $validated['email'],
-            'token' => \Illuminate\Support\Str::random(32),
+            'token' => Str::random(32),
         ]);
 
         return redirect()->back()->with('success', 'Invitation sent successfully.');
     }
 
-    public function removeParticipant(Request $request, Group $group, \App\Models\User $user)
+    public function removeParticipant(Request $request, Group $group, User $user)
     {
-        if ($group->admin_id !== Auth::id()) {
-            abort(403);
-        }
-
-        if ($group->status !== 'open') {
-            return redirect()->back()->withErrors(['message' => 'Cannot remove members after draw.']);
-        }
+        $this->authorize('removeParticipant', $group);
 
         if ($user->id === $group->admin_id) {
-             return redirect()->back()->withErrors(['message' => 'Admin cannot leave the group this way.']);
+            return redirect()->back()->withErrors(['message' => 'Admin cannot leave the group this way.']);
         }
 
         $group->participants()->detach($user->id);
@@ -147,17 +134,7 @@ class GroupController extends Controller
 
     public function draw(Request $request, Group $group)
     {
-        if ($group->admin_id !== Auth::id()) {
-            abort(403);
-        }
-
-        if ($group->participants()->count() < 3) {
-            return redirect()->back()->withErrors(['message' => 'Need at least 3 participants.']);
-        }
-
-        if ($group->status !== 'open') {
-            return redirect()->back()->withErrors(['message' => 'Draw already happened.']);
-        }
+        $this->authorize('draw', $group);
 
         // Improved Random Secret Santa Algorithm
         $participantIds = $group->participants->pluck('id')->toArray();
@@ -221,10 +198,7 @@ class GroupController extends Controller
 
     public function assignWishlist(Request $request, Group $group)
     {
-        // Ensure user belongs to the group
-        if (!$group->participants->contains(Auth::id())) {
-            abort(403);
-        }
+        $this->authorize('assignWishlist', $group);
 
         $validated = $request->validate([
             'wishlist_id' => 'nullable|exists:wishlists,id',
@@ -247,9 +221,7 @@ class GroupController extends Controller
 
     public function destroy(Group $group)
     {
-        if ($group->admin_id !== Auth::id()) {
-            abort(403, 'Only the admin can delete the group.');
-        }
+        $this->authorize('delete', $group);
 
         $group->delete();
 

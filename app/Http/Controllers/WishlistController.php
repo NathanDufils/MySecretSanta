@@ -3,16 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Wishlist;
+use App\Models\WishlistItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class WishlistController extends Controller
 {
-
     public function index()
     {
         $wishlists = Auth::user()->wishlists()->with('items')->get();
+
         return Inertia::render('Wishlists/Index', [
             'wishlists' => $wishlists
         ]);
@@ -31,9 +32,7 @@ class WishlistController extends Controller
 
     public function destroy(Wishlist $wishlist)
     {
-        if ($wishlist->user_id !== Auth::id()) {
-            abort(403);
-        }
+        $this->authorize('delete', $wishlist);
 
         $wishlist->delete();
 
@@ -42,9 +41,7 @@ class WishlistController extends Controller
 
     public function addItem(Request $request, Wishlist $wishlist)
     {
-        if ($wishlist->user_id !== Auth::id()) {
-            abort(403);
-        }
+        $this->authorize('addItem', $wishlist);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -57,11 +54,9 @@ class WishlistController extends Controller
         return redirect()->back();
     }
 
-    public function removeItem(Wishlist $wishlist, \App\Models\WishlistItem $item)
+    public function removeItem(Wishlist $wishlist, WishlistItem $item)
     {
-        if ($wishlist->user_id !== Auth::id()) {
-            abort(403);
-        }
+        $this->authorize('removeItem', $wishlist);
 
         if ($item->wishlist_id !== $wishlist->id) {
             abort(403);
@@ -71,5 +66,4 @@ class WishlistController extends Controller
 
         return redirect()->back();
     }
-
 }

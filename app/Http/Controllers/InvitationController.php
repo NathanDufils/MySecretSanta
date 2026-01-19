@@ -10,9 +10,7 @@ class InvitationController extends Controller
 {
     public function accept(Request $request, Invitation $invitation)
     {
-        if ($invitation->email !== Auth::user()->email) {
-            abort(403, 'This invitation is not for you.');
-        }
+        $this->authorize('accept', $invitation);
 
         $invitation->group->participants()->attach(Auth::id());
         $invitation->delete();
@@ -22,9 +20,7 @@ class InvitationController extends Controller
 
     public function decline(Request $request, Invitation $invitation)
     {
-        if ($invitation->email !== Auth::user()->email) {
-             abort(403, 'This invitation is not for you.');
-        }
+        $this->authorize('decline', $invitation);
 
         $invitation->delete();
 
