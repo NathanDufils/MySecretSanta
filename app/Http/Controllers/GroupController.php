@@ -187,4 +187,25 @@ class GroupController extends Controller
 
         return redirect('/')->with('success', 'Group deleted successfully.');
     }
+
+    public function join(Request $request)
+    {
+        $validated = $request->validate([
+            'code' => 'required|string|size:6',
+        ]);
+
+        $group = Group::where('code', Str::upper($validated['code']))->first();
+
+        if (!$group) {
+            return redirect()->back()->withErrors(['code' => 'Aucun groupe trouvé avec ce code.']);
+        }
+
+        if ($group->participants->contains(Auth::id())) {
+            return redirect()->back()->withErrors(['code' => 'Vous êtes déjà membre de ce groupe.']);
+        }
+
+        $group->participants()->attach(Auth::id());
+
+        return redirect()->route('groups.show', $group)->with('success', 'Bienvenue dans le groupe !');
+    }
 }
