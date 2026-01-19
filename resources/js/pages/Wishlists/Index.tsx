@@ -42,16 +42,7 @@ export default function Index({ wishlists }: WishlistIndexProps) {
         <>
             <Head title="Mes Listes de Souhaits" />
 
-            <style>{`
-                @import url('https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&display=swap');
-                .font-christmas { font-family: 'Mountains of Christmas', cursive; }
-                .snowflake { position: absolute; top: -3vh; color: white; animation: fall linear infinite; }
-                @keyframes fall {
-                    0% { transform: translateY(-10vh) translateX(0px); opacity: 0; }
-                    10% { opacity: 0.8; }
-                    100% { transform: translateY(100vh) translateX(20px); opacity: 0.3; }
-                }
-            `}</style>
+
 
             <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-[#D42426] to-[#8C1819] text-white selection:bg-[#F8B803] selection:text-[#391800]">
                 {/* Snow Animation Layer */}

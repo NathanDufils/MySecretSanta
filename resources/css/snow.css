@@ -1,0 +1,36 @@
+/* 
+ * Snowflake Animation Styles
+ * Shared across all pages with Christmas theme
+ */
+
+/* Google Fonts - Mountains of Christmas */
+@import url('https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&display=swap');
+
+/* Christmas Font */
+.font-christmas {
+    font-family: 'Mountains of Christmas', cursive;
+}
+
+/* Snowflake Base */
+.snowflake {
+    position: absolute;
+    top: -3vh;
+    color: white;
+    animation: fall linear infinite;
+    pointer-events: none;
+}
+
+/* Snowflake Fall Animation */
+@keyframes fall {
+    0% {
+        transform: translateY(-10vh) translateX(0px);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(100vh) translateX(20px);
+        opacity: 0.3;
+    }
+}
