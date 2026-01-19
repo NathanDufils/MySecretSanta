@@ -8,9 +8,17 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@font-face {
+    font-family: 'Berkshire Swash';
+    src: url('../fonts/BerkshireSwash-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
 @theme {
     --font-sans: 'Outfit', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-    --font-christmas: var(--font-sans);
+    --font-christmas: 'Berkshire Swash', cursive;
 
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
