@@ -2,21 +2,13 @@ import { Head, useForm, router, Link } from '@inertiajs/react';
 import { Trash2, Plus, ExternalLink, ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
 import { useSnowflakes } from '@/hooks/useSnowflakes';
+import { type Wishlist, type WishlistItem } from '@/types';
 
-interface WishlistItem {
-    id: number;
-    name: string;
-    url?: string;
-    description?: string;
+interface WishlistIndexProps {
+    wishlists: Wishlist[];
 }
 
-interface Wishlist {
-    id: number;
-    title: string;
-    items: WishlistItem[];
-}
-
-export default function Index({ wishlists }: { wishlists: Wishlist[] }) {
+export default function Index({ wishlists }: WishlistIndexProps) {
     const { data, setData, post, processing, reset } = useForm({
         title: '',
     });

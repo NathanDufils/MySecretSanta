@@ -5,12 +5,11 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ChevronDown, Check, X as XIcon, Bell, Heart, Plus } from 'lucide-react';
-import { type SharedData } from '@/types';
+import { ChevronDown, Check, X, Bell, Heart, Plus } from 'lucide-react';
+import { type SharedData, type Group, type Invitation } from '@/types';
 import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
 
 import { useSnowflakes } from '@/hooks/useSnowflakes';
-import { X } from 'lucide-react';
 import {
     Dialog,
     DialogContent,
@@ -26,35 +25,17 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { FormEventHandler, useState } from 'react';
 
-interface Group {
-    id: number;
-    name: string;
-    description: string;
-    event_date: string;
-    max_budget?: number;
-    admin_id: number;
-    status: string;
-    admin?: { name: string };
-}
-
-
-
-interface Invitation {
-    id: number;
-    group: Group;
+interface WelcomeProps {
+    canRegister?: boolean;
+    groups?: Group[];
+    invitations?: Invitation[];
 }
 
 export default function Welcome({
     canRegister = true,
     groups = [],
     invitations = [],
-
-}: {
-    canRegister?: boolean;
-    groups?: Group[];
-    invitations?: Invitation[];
-
-}) {
+}: WelcomeProps) {
     const { auth } = usePage<SharedData>().props;
 
     const snowflakes = useSnowflakes(20);
@@ -204,7 +185,7 @@ export default function Welcome({
                                                         size="sm"
                                                         className="flex-1 rounded-lg h-8 text-xs gap-1"
                                                     >
-                                                        <XIcon className="w-3 h-3" /> Refuser
+                                                        <X className="w-3 h-3" /> Refuser
                                                     </Button>
                                                 </div>
                                             </div>

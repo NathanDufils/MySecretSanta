@@ -1,5 +1,5 @@
 import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
-import { type SharedData } from '@/types';
+import { type SharedData, type Group, type Wishlist, type WishlistItem, type Participant, type Draw } from '@/types';
 import { useSnowflakes } from '@/hooks/useSnowflakes';
 
 import { ChevronLeft, Trash2, Settings, UserPlus, Gift, X } from 'lucide-react';
@@ -18,42 +18,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useState } from 'react';
 
-interface Group {
-    id: number;
-    name: string;
-    description: string;
-    event_date: string;
-    max_budget?: number;
-    admin_id: number;
-    status: string;
-    code: string;
+interface GroupShowProps {
+    group: Group;
+    participants: Participant[];
+    draw: Draw | null;
+    userWishlists: Wishlist[];
 }
 
-interface WishlistItem {
-    id: number;
-    name: string;
-    url?: string;
-    description?: string;
-}
-
-interface Wishlist {
-    id: number;
-    title: string;
-    items: WishlistItem[];
-}
-
-interface Participant {
-    id: number;
-    name: string;
-    assigned_wishlist?: Wishlist;
-}
-
-interface Draw {
-    target_id: number;
-    target?: Participant;
-}
-
-export default function GroupShow({ group, participants, draw, userWishlists }: { group: Group, participants: Participant[], draw: Draw, userWishlists: Wishlist[] }) {
+export default function GroupShow({ group, participants, draw, userWishlists }: GroupShowProps) {
     const { auth } = usePage<SharedData>().props;
     const snowflakes = useSnowflakes(20);
     const isAdmin = group.admin_id === auth.user.id;
