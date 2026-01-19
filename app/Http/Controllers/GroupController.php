@@ -7,6 +7,7 @@ use App\Models\Group;
 use App\Models\Invitation;
 use App\Models\User;
 use App\Models\Wishlist;
+use App\Services\SecretSantaDrawService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -132,13 +133,13 @@ class GroupController extends Controller
         return redirect()->back();
     }
 
-    public function draw(Request $request, Group $group)
+    public function draw(Request $request, Group $group, SecretSantaDrawService $drawService)
     {
         $this->authorize('draw', $group);
 
         // Improved Random Secret Santa Algorithm
         $participantIds = $group->participants->pluck('id')->toArray();
-        $assignments = $this->generateRandomSecretSanta($participantIds);
+        $assignments = $drawService->generateAssignments($participantIds);
 
         foreach ($assignments as $santaId => $targetId) {
             Draw::create([
@@ -153,48 +154,7 @@ class GroupController extends Controller
         return redirect()->back();
     }
 
-    /**
-     * Generate a random Secret Santa assignment ensuring no one gets themselves
-     * Uses a derangement algorithm with shuffling and validation
-     */
-    private function generateRandomSecretSanta(array $participantIds): array
-    {
-        $maxAttempts = 100;
-        $count = count($participantIds);
 
-        for ($attempt = 0; $attempt < $maxAttempts; $attempt++) {
-            $santas = $participantIds;
-            $targets = $participantIds;
-
-            // Shuffle targets to create randomness
-            shuffle($targets);
-
-            $assignments = [];
-            $valid = true;
-
-            // Check if this shuffling creates a valid derangement (no one gets themselves)
-            for ($i = 0; $i < $count; $i++) {
-                if ($santas[$i] === $targets[$i]) {
-                    $valid = false;
-                    break;
-                }
-                $assignments[$santas[$i]] = $targets[$i];
-            }
-
-            if ($valid) {
-                return $assignments;
-            }
-        }
-
-        // Fallback: use circular shift method if random attempts fail
-        $assignments = [];
-        shuffle($participantIds);
-        for ($i = 0; $i < $count; $i++) {
-            $assignments[$participantIds[$i]] = $participantIds[($i + 1) % $count];
-        }
-
-        return $assignments;
-    }
 
     public function assignWishlist(Request $request, Group $group)
     {
