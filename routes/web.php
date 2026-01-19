@@ -5,15 +5,7 @@ use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 
-Route::get('/', function () {
-    return Inertia::render('welcome', [
-        'canRegister' => Features::enabled(Features::registration()),
-        'groups' => Auth::user()?->groups ?? [],
-        'invitations' => Auth::user()
-            ? \App\Models\Invitation::where('email', Auth::user()->email)->with('group.admin')->get()
-            : [],
-    ]);
-})->name('home');
+Route::get('/', [\App\Http\Controllers\WelcomeController::class, 'index'])->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
