@@ -12,14 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
+            // Secret pour le 2FA
             $table->text('two_factor_secret')->after('password')->nullable();
+            
+            // Codes de récupération 2FA
             $table->text('two_factor_recovery_codes')->after('two_factor_secret')->nullable();
+            
+            // Date de confirmation du 2FA
             $table->timestamp('two_factor_confirmed_at')->after('two_factor_recovery_codes')->nullable();
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Annule les migrations.
      */
     public function down(): void
     {

@@ -7,26 +7,29 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Exécute les migrations.
      */
     public function up(): void
     {
+        // Table des groupes
         Schema::create('groups', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->text('description')->nullable();
-            $table->integer('max_budget')->nullable(); // En centimes ou devise
-            $table->date('event_date');
-            $table->string('code')->unique(); // Pour rejoindre le groupe
-            $table->string('status')->default('open'); // 'open' ou 'drawn'
-            // L'admin qui peut lancer le tirage
+            $table->id(); // ID unique
+            $table->string('name'); // Nom du groupe
+            $table->text('description')->nullable(); // Description optionnelle
+            $table->integer('max_budget')->nullable(); // Budget max (centimes ou devise)
+            $table->date('event_date'); // Date de l'événement
+            $table->string('code')->unique(); // Code unique pour rejoindre
+            $table->string('status')->default('open'); // Statut: 'open' ou 'drawn'
+            
+            // ID de l'administrateur du groupe
             $table->foreignId('admin_id')->constrained('users')->onDelete('cascade');
-            $table->timestamps();
+            
+            $table->timestamps(); // Dates de création/modification
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Annule les migrations.
      */
     public function down(): void
     {

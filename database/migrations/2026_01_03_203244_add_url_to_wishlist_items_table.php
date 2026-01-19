@@ -7,17 +7,18 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Exécute les migrations.
      */
     public function up(): void
     {
         Schema::table('wishlist_items', function (Blueprint $table) {
+            // Ajout de la colonne URL pour le lien vers le produit
             $table->string('url')->nullable()->after('name');
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Annule les migrations.
      */
     public function down(): void
     {

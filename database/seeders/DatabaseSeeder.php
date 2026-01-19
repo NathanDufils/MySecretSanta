@@ -14,36 +14,36 @@ class DatabaseSeeder extends Seeder
     use WithoutModelEvents;
 
     /**
-     * Seed the application's database.
+     * Exécute les seeds de la base de données.
      */
     public function run(): void
     {
-        // 1. Create a main admin (for you to log in)
+        // 1. Création de l'administrateur principal
         $admin = User::factory()->create([
             'name' => 'Admin User',
             'email' => 'admin@example.com',
         ]);
 
-        // 2. Create a group managed by this admin
+        // 2. Création d'un groupe géré par l'admin
         $group = Group::factory()->create([
             'name' => 'Noël des Devs',
             'admin_id' => $admin->id,
         ]);
 
-        // 3. Create 5 other participants
+        // 3. Création de 5 autres participants
         $participants = User::factory(5)->create();
 
-        // 4. Create a Wishlist for the Admin with 3 gifts
+        // 4. Création de la liste de souhaits de l'admin (avec 3 cadeaux)
         $adminWishlist = Wishlist::factory()
             ->has(WishlistItem::factory()->count(3), 'items')
             ->create(['user_id' => $admin->id]);
 
-        // 5. Attach Admin to the group as a participant with their wishlist
+        // 5. Ajout de l'admin comme participant du groupe (avec sa liste)
         $group->participants()->attach($admin->id, [
             'wishlist_id' => $adminWishlist->id,
         ]);
 
-        // 6. Loop through other participants to create wishlists and attach them
+        // 6. Pour chaque participant : création de liste + ajout au groupe
         foreach ($participants as $user) {
             $wishlist = Wishlist::factory()
                 ->has(WishlistItem::factory()->count(3), 'items')
@@ -53,30 +53,5 @@ class DatabaseSeeder extends Seeder
                 'wishlist_id' => $wishlist->id
             ]);
         }
-
-        // 7. Organize the Secret Santa Draw
-        // Collect all group members (Admin + Participants)
-        // $allParticipants = $group->participants()->get();
-
-        // Simple algorithm to shuffle and assign
-        // We shuffle the collection and link item N to N+1, and Last to First.
-        // $shuffled = $allParticipants->shuffle();
-
-        // $count = $shuffled->count();
-        // if ($count < 2) {
-        //     return; // Not enough people for a draw
-        // }
-
-        // for ($i = 0; $i < $count; $i++) {
-        //     $santa = $shuffled[$i];
-        //     // If it's the last person, they give to the first person
-        //     $target = ($i === $count - 1) ? $shuffled[0] : $shuffled[$i + 1];
-
-        //     \App\Models\Draw::create([
-        //         'group_id' => $group->id,
-        //         'santa_id' => $santa->id,
-        //         'target_id' => $target->id,
-        //     ]);
-        // }
     }
 }

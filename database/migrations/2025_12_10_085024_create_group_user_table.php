@@ -7,24 +7,28 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Exécute les migrations.
      */
-public function up(): void
-{
-    Schema::create('group_user', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('user_id')->constrained()->onDelete('cascade');
-        $table->foreignId('group_id')->constrained()->onDelete('cascade');
-        
-        // La wishlist choisie pour ce groupe (peut être null au début si pas encore choisie)
-        $table->foreignId('wishlist_id')->nullable()->constrained()->onDelete('set null');
-        $table->timestamps();
-        $table->unique(['user_id', 'group_id']); 
-    });
-}
+    public function up(): void
+    {
+        // Table pivot pour la relation Many-to-Many entre Users et Groups
+        Schema::create('group_user', function (Blueprint $table) {
+            $table->id(); // ID unique
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // ID utilisateur
+            $table->foreignId('group_id')->constrained()->onDelete('cascade'); // ID groupe
+            
+            // Wishlist choisie par l'utilisateur pour ce groupe (optionnel au début)
+            $table->foreignId('wishlist_id')->nullable()->constrained()->onDelete('set null');
+            
+            $table->timestamps(); // Dates de création/modification
+            
+            // Un utilisateur ne peut être dans un groupe qu'une seule fois
+            $table->unique(['user_id', 'group_id']); 
+        });
+    }
 
     /**
-     * Reverse the migrations.
+     * Annule les migrations.
      */
     public function down(): void
     {

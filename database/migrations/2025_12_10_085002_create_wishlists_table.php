@@ -7,20 +7,21 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Exécute les migrations.
      */
     public function up(): void
     {
+        // Table des listes de souhaits
         Schema::create('wishlists', function (Blueprint $table) {
-            $table->id();
-            $table->string('title'); // Ex: "Ma liste Gaming", "Noël 2024"
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->timestamps();
+            $table->id(); // ID unique
+            $table->string('title'); // Titre de la liste (ex: "Ma liste Gaming")
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Propriétaire de la liste
+            $table->timestamps(); // Dates de création/modification
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Annule les migrations.
      */
     public function down(): void
     {

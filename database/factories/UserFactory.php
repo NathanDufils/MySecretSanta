@@ -7,28 +7,41 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
+ * Factory pour générer de faux utilisateurs pour les tests.
+ *
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
  */
 class UserFactory extends Factory
 {
     /**
-     * The current password being used by the factory.
+     * Mot de passe actuel utilisé par la factory.
      */
     protected static ?string $password;
 
     /**
-     * Define the model's default state.
+     * Définition des données par défaut.
      *
      * @return array<string, mixed>
      */
     public function definition(): array
     {
         return [
+            // Nom complet aléatoire
             'name' => fake()->name(),
+
+            // Email unique et valide
             'email' => fake()->unique()->safeEmail(),
+
+            // Email vérifié immédiatement
             'email_verified_at' => now(),
+
+            // Mot de passe (haché) : "password" par défaut
             'password' => static::$password ??= Hash::make('password'),
+
+            // Jeton "Se souvenir de moi" aléatoire
             'remember_token' => Str::random(10),
+
+            // Configuration 2FA factice
             'two_factor_secret' => Str::random(10),
             'two_factor_recovery_codes' => Str::random(10),
             'two_factor_confirmed_at' => now(),
@@ -36,7 +49,7 @@ class UserFactory extends Factory
     }
 
     /**
-     * Indicate that the model's email address should be unverified.
+     * Indique que l'adresse email n'est pas vérifiée.
      */
     public function unverified(): static
     {
@@ -46,7 +59,7 @@ class UserFactory extends Factory
     }
 
     /**
-     * Indicate that the model does not have two-factor authentication configured.
+     * Indique que l'utilisateur n'a pas activé l'authentification à deux facteurs.
      */
     public function withoutTwoFactor(): static
     {

@@ -7,21 +7,22 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Exécute les migrations.
      */
     public function up(): void
     {
+        // Table des invitations
         Schema::create('invitations', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('group_id')->constrained()->onDelete('cascade');
-            $table->string('email');
-            $table->string('token')->unique();
-            $table->timestamps();
+            $table->id(); // ID unique
+            $table->foreignId('group_id')->constrained()->onDelete('cascade'); // Groupe invitant
+            $table->string('email'); // Email de l'invité
+            $table->string('token')->unique(); // Token unique pour l'invitation
+            $table->timestamps(); // Dates de création/modification
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Annule les migrations.
      */
     public function down(): void
     {
