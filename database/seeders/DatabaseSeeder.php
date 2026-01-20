@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
         $group = Group::factory()->create([
             'name' => 'Noël des Devs',
             'admin_id' => $admin->id,
+            'code' => 'B9IF4R',
         ]);
 
         // 3. Création de 5 autres participants

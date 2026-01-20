@@ -20,6 +20,7 @@ return new class extends Migration
             
             $table->string('name'); // Nom de l'article (ex: "Livre PHP")
             $table->text('description')->nullable(); // Description détaillée
+            $table->string('url')->nullable(); // URL de l'article
             
             $table->timestamps(); // Dates de création/modification
         });
