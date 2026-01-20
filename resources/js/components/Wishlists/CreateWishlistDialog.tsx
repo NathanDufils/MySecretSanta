@@ -13,32 +13,29 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Plus, X } from 'lucide-react';
 import { useForm } from '@inertiajs/react';
+import { useState } from 'react';
 
-interface CreateGroupDialogProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-}
-
-export default function CreateGroupDialog({ open, onOpenChange }: CreateGroupDialogProps) {
-    const createForm = useForm({
-        name: '',
+export default function CreateWishlistDialog() {
+    const [open, setOpen] = useState(false);
+    const { data, setData, post, processing, reset, errors } = useForm({
+        title: '',
     });
 
-    const createGroup = (e: React.FormEvent) => {
+    const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        createForm.post('/groups', {
+        post('/wishlists', {
             onSuccess: () => {
-                onOpenChange(false);
-                createForm.reset();
+                setOpen(false);
+                reset();
             },
         });
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="rounded-full bg-[#F8B803] px-8 py-6 text-lg font-bold text-[#391800] hover:bg-[#e0a602] shadow-lg gap-1 dark:bg-yellow-600 dark:text-white dark:hover:bg-yellow-700">
-                    <Plus className="h-6 w-6" strokeWidth={3} /> Créer un Groupe
+                <Button className="bg-[#165B33] text-white p-2 rounded-lg hover:bg-[#124d2b] transition-colors shadow-md gap-2 px-4">
+                    <Plus className="w-5 h-5" />
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[480px] bg-transparent dark:bg-transparent border-none shadow-none p-0 overflow-visible focus:outline-none">
@@ -58,33 +55,33 @@ export default function CreateGroupDialog({ open, onOpenChange }: CreateGroupDia
                         </div>
 
                         <DialogHeader className="mb-6 text-center sm:text-center relative z-20 w-full flex flex-col items-center">
-                            <DialogTitle className="font-christmas text-4xl text-white drop-shadow-md">Créer un Nouveau Groupe</DialogTitle>
+                            <DialogTitle className="font-christmas text-4xl text-white drop-shadow-md">Créer une Liste</DialogTitle>
                             <DialogDescription className="text-white dark:text-gray-200 font-medium max-w-[80%] mx-auto">
-                                Donnez un nom à votre groupe pour commencer.
+                                Donnez un titre à votre nouvelle liste de souhaits.
                             </DialogDescription>
                         </DialogHeader>
 
-                        <form onSubmit={createGroup} className="w-full relative z-20 flex flex-col items-center">
+                        <form onSubmit={submit} className="w-full relative z-20 flex flex-col items-center">
                             <div className="grid gap-4 py-4 w-[80%]">
                                 <div className="flex flex-col gap-2">
-                                    <Label htmlFor="name" className="text-center text-white font-bold text-lg drop-shadow-md">
-                                        Nom du Groupe
+                                    <Label htmlFor="title" className="text-center text-white font-bold text-lg drop-shadow-md">
+                                        Titre de la liste
                                     </Label>
                                     <Input
-                                        id="name"
-                                        value={createForm.data.name}
-                                        onChange={(e) => createForm.setData('name', e.target.value)}
+                                        id="title"
+                                        value={data.title}
+                                        onChange={(e) => setData('title', e.target.value)}
                                         className="text-center bg-white/80 dark:bg-gray-700/80 border-white/50 focus:border-white focus:ring-white/50 placeholder:text-gray-500 text-[#391800] dark:text-white font-bold text-lg py-6"
-                                        placeholder="Famille"
+                                        placeholder="Ma liste de Noël"
                                     />
                                 </div>
-                                {createForm.errors.name && (
-                                    <div className="text-center text-sm text-[#D42426] font-bold bg-white rounded-full px-2 py-0.5 shadow-sm">{createForm.errors.name}</div>
+                                {errors.title && (
+                                    <div className="text-center text-sm text-[#D42426] font-bold bg-white rounded-full px-2 py-0.5 shadow-sm">{errors.title}</div>
                                 )}
                             </div>
                             <DialogFooter className="justify-center sm:justify-center mt-2 w-full">
-                                <Button type="submit" disabled={createForm.processing} className="bg-[#D42426] hover:bg-[#b01e20] text-white rounded-full px-8 py-6 text-lg shadow-lg hover:scale-105 transition-transform dark:bg-red-700 dark:hover:bg-red-600 border-2 border-white/20">
-                                    Créer le Groupe
+                                <Button type="submit" disabled={processing} className="bg-[#D42426] hover:bg-[#b01e20] text-white rounded-full px-8 py-6 text-lg shadow-lg hover:scale-105 transition-transform dark:bg-red-700 dark:hover:bg-red-600 border-2 border-white/20">
+                                    Créer la Liste
                                 </Button>
                             </DialogFooter>
                         </form>

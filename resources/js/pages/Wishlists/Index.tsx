@@ -1,18 +1,18 @@
-import { Head, useForm, router, Link } from '@inertiajs/react';
-import { Trash2, Plus, ExternalLink, ArrowLeft } from 'lucide-react';
+import { Head, router, Link } from '@inertiajs/react';
+import { Trash2, ExternalLink, ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
 import { useSnowflakes } from '@/hooks/useSnowflakes';
 import { type Wishlist, type WishlistItem } from '@/types';
+
+// Components
+import CreateWishlistDialog from '@/components/Wishlists/CreateWishlistDialog';
+import AddItemDialog from '@/components/Wishlists/AddItemDialog';
 
 interface WishlistIndexProps {
     wishlists: Wishlist[];
 }
 
 export default function Index({ wishlists }: WishlistIndexProps) {
-    const { data, setData, post, processing, reset } = useForm({
-        title: '',
-    });
-
     const snowflakes = useSnowflakes(20);
     const smallSnowflakes = useSnowflakes(15, 8);
 
@@ -20,17 +20,8 @@ export default function Index({ wishlists }: WishlistIndexProps) {
 
     const selectedWishlist = wishlists.find((list: Wishlist) => list.id === selectedWishlistId) || (wishlists.length > 0 ? wishlists[0] : null);
 
-    const submit = (e: React.FormEvent) => {
-        e.preventDefault();
-        post('/wishlists', {
-            onSuccess: () => {
-                reset();
-            },
-        });
-    };
-
     const deleteWishlist = (id: number) => {
-        if (confirm('Are you sure?')) {
+        if (confirm('Êtes-vous sûr de vouloir supprimer cette liste ?')) {
             router.delete(`/wishlists/${id}`);
             if (selectedWishlistId === id) {
                 setSelectedWishlistId(null);
@@ -41,8 +32,6 @@ export default function Index({ wishlists }: WishlistIndexProps) {
     return (
         <>
             <Head title="Mes Listes de Souhaits" />
-
-
 
             <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-[#D42426] to-[#8C1819] text-white selection:bg-[#F8B803] selection:text-[#391800]">
                 {/* Snow Animation Layer */}
@@ -57,7 +46,7 @@ export default function Index({ wishlists }: WishlistIndexProps) {
 
                 <div className="relative z-10 mx-auto max-w-7xl px-6 py-10">
                     {/* Header with Back Button */}
-                    <div className="mb-8 flex items-center gap-4">
+                    <div className="mb-8 flex items-center gap-6">
                         <Link href="/" className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-white hover:bg-white/20 transition-colors backdrop-blur-md border border-white/20">
                             <ArrowLeft className="w-5 h-5" />
                             <span className="font-bold">Retour</span>
@@ -69,24 +58,10 @@ export default function Index({ wishlists }: WishlistIndexProps) {
 
                         {/* Sidebar: List of Wishlists */}
                         <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl p-6 text-gray-800 border border-white/50">
-                            <h3 className="text-xl font-bold mb-4 text-[#D42426] font-christmas">Vos Listes</h3>
-
-                            <form onSubmit={submit} className="mb-6 flex gap-2">
-                                <input
-                                    type="text"
-                                    value={data.title}
-                                    onChange={e => setData('title', e.target.value)}
-                                    placeholder="Nouvelle liste..."
-                                    className="flex-1 border-gray-300 focus:border-[#D42426] focus:ring-[#D42426] rounded-lg shadow-sm text-sm"
-                                />
-                                <button
-                                    type="submit"
-                                    disabled={processing}
-                                    className="bg-[#165B33] text-white p-2 rounded-lg hover:bg-[#124d2b] transition-colors shadow-md"
-                                >
-                                    <Plus className="w-5 h-5" />
-                                </button>
-                            </form>
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="text-xl font-bold text-[#D42426] font-christmas">Vos Listes</h3>
+                                <CreateWishlistDialog />
+                            </div>
 
                             <ul className="space-y-2">
                                 {wishlists.map((list: Wishlist) => (
@@ -125,20 +100,6 @@ export default function Index({ wishlists }: WishlistIndexProps) {
 }
 
 function WishlistItems({ wishlist }: { wishlist: Wishlist }) {
-    const { data, setData, post, processing, reset, errors } = useForm({
-        name: '',
-        url: '',
-        description: ''
-    });
-
-    const submitItem = (e: React.FormEvent) => {
-        e.preventDefault();
-        post(`/wishlists/${wishlist.id}/items`, {
-            preserveScroll: true,
-            onSuccess: () => reset(),
-        });
-    };
-
     const deleteItem = (itemId: number) => {
         if (confirm('Supprimer cet article ?')) {
             router.delete(`/wishlists/${wishlist.id}/items/${itemId}`, {
@@ -149,58 +110,13 @@ function WishlistItems({ wishlist }: { wishlist: Wishlist }) {
 
     return (
         <div>
-            <div className="flex justify-between items-end mb-6 border-b border-gray-100 pb-4">
-                <h3 className="text-3xl font-bold text-[#D42426] font-christmas">{wishlist.title}</h3>
-                <span className="text-sm font-medium bg-gray-100 px-3 py-1 rounded-full">{wishlist.items.length} articles</span>
+            <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
+                <div className="flex items-baseline gap-3">
+                    <h3 className="text-3xl font-bold text-[#D42426] font-christmas">{wishlist.title}</h3>
+                    <span className="text-sm font-medium bg-gray-100 px-3 py-1 rounded-full">{wishlist.items.length} articles</span>
+                </div>
+                <AddItemDialog wishlist={wishlist} />
             </div>
-
-            {/* Add Item Form */}
-            <form onSubmit={submitItem} className="bg-gray-50 p-5 rounded-xl mb-6 border border-gray-100 shadow-inner">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-1">Nom de l'article</label>
-                        <input
-                            type="text"
-                            value={data.name}
-                            onChange={e => setData('name', e.target.value)}
-                            className="block w-full border-gray-300 rounded-lg shadow-sm focus:border-[#D42426] focus:ring-[#D42426]"
-                            required
-                            placeholder="Ex: Chaussettes rouges"
-                        />
-                        {errors.name && <div className="text-red-500 text-xs mt-1 font-bold">{errors.name}</div>}
-                    </div>
-                    <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-1">Lien (Optionnel)</label>
-                        <input
-                            type="url"
-                            value={data.url}
-                            onChange={e => setData('url', e.target.value)}
-                            className="block w-full border-gray-300 rounded-lg shadow-sm focus:border-[#D42426] focus:ring-[#D42426]"
-                            placeholder="https://..."
-                        />
-                        {errors.url && <div className="text-red-500 text-xs mt-1 font-bold">{errors.url}</div>}
-                    </div>
-                </div>
-                <div className="mb-4">
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Description / Détails</label>
-                    <textarea
-                        value={data.description}
-                        onChange={e => setData('description', e.target.value)}
-                        className="block w-full border-gray-300 rounded-lg shadow-sm focus:border-[#D42426] focus:ring-[#D42426]"
-                        rows={2}
-                        placeholder="Taille, couleur, préférence..."
-                    ></textarea>
-                </div>
-                <div className="flex justify-end">
-                    <button
-                        type="submit"
-                        disabled={processing}
-                        className="bg-[#D42426] text-white px-6 py-2 rounded-lg hover:bg-[#b01e20] text-sm font-bold shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
-                    >
-                        Ajouter l'article
-                    </button>
-                </div>
-            </form>
 
             {/* Items List */}
             <div className="space-y-4">

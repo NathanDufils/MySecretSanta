@@ -1,4 +1,3 @@
-import ChristmasTree from '@/components/ChristmasTree';
 import { Link } from '@inertiajs/react';
 
 interface GuestWelcomeProps {
@@ -7,42 +6,29 @@ interface GuestWelcomeProps {
 
 export default function GuestWelcome({ canRegister }: GuestWelcomeProps) {
     return (
-        <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-6 md:flex-row md:justify-around text-center md:text-left selection:bg-none">
-            {/* Christmas Tree Section */}
-            <div className="mb-10 md:mb-0 md:w-1/2 flex justify-center">
-                <div className="w-full max-w-[400px] md:max-w-full">
-                    <ChristmasTree />
-                </div>
-            </div>
+        <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-6 text-center selection:bg-none">
 
-            {/* Text & Buttons Section */}
-            <div className="flex flex-col items-center md:items-start md:w-1/2 md:pl-10">
-                {/* Header / Logo Area */}
-                <div className="mb-10 animate-fade-in-down">
-                    <div className="mb-4 text-6xl md:hidden">🎅</div>
-                    <h1 className="font-christmas mb-2 text-6xl font-bold tracking-wide text-white drop-shadow-md sm:text-8xl">
-                        Secret Santa
-                    </h1>
-                    <p className="mx-auto md:mx-0 max-w-lg text-lg text-red-100 sm:text-xl">
-                        Organisez l'échange de cadeaux le plus magique avec vos amis et votre famille !
-                    </p>
-                </div>
+            {/* Logo & Text Section */}
+            <div className="flex flex-col items-center max-w-4xl w-full animate-fade-in-down">
+                <img
+                    src="/images/logo.png"
+                    alt="My Secret Santa"
+                    className="mb-8 w-80 md:w-[500px] h-auto drop-shadow-2xl transition-transform duration-500"
+                />
 
-                {/* Action Buttons */}
-                <div className="flex flex-col gap-4 sm:flex-row sm:gap-6 animate-fade-in-up delay-200">
-                    <Link
-                        href="/login"
-                        className="group relative inline-flex min-w-[160px] items-center justify-center overflow-hidden rounded-full bg-white px-8 py-3 font-bold text-[#D42426] shadow-lg transition-transform hover:scale-105 hover:bg-gray-50 focus:outline-none focus:ring-4 focus:ring-white/50"
-                    >
-                        <span className="relative z-10">Connexion</span>
-                    </Link>
+                <p className="mx-auto max-w-2xl text-xl text-red-100 sm:text-2xl font-medium leading-relaxed mb-12 drop-shadow-sm">
+                    Organisez l'échange de cadeaux le plus magique avec vos amis et votre famille !
+                </p>
 
+                {/* Action Button */}
+                <div className="animate-fade-in-up delay-200">
                     {canRegister && (
                         <Link
                             href="/register"
-                            className="group relative inline-flex min-w-[160px] items-center justify-center overflow-hidden rounded-full bg-[#F8B803] px-8 py-3 font-bold text-[#391800] shadow-lg transition-transform hover:scale-105 hover:bg-[#e0a602] focus:outline-none focus:ring-4 focus:ring-[#F8B803]/50"
+                            className="group relative inline-flex min-w-[200px] items-center justify-center overflow-hidden rounded-full bg-[#F8B803] px-10 py-4 text-lg font-bold text-[#391800] shadow-[0_0_20px_rgba(248,184,3,0.3)] transition-all hover:scale-110 hover:bg-[#e0a602] hover:shadow-[0_0_30px_rgba(248,184,3,0.5)] focus:outline-none focus:ring-4 focus:ring-[#F8B803]/50"
                         >
-                            <span className="relative z-10">Commencer</span>
+                            <span className="relative z-10 uppercase tracking-wider">Commencer</span>
+                            <div className="absolute inset-0 -translate-x-[100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12" />
                         </Link>
                     )}
                 </div>

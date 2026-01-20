@@ -1,7 +1,7 @@
 import { Head, Link, usePage, router } from '@inertiajs/react';
 import { type SharedData, type Group, type Wishlist, type Participant, type Draw } from '@/types';
 import { useSnowflakes } from '@/hooks/useSnowflakes';
-import { ChevronLeft, Gift } from 'lucide-react';
+import { ChevronLeft, Gift, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 
@@ -27,6 +27,7 @@ export default function GroupShow({ group, participants, draw, userWishlists }: 
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [isInviteOpen, setIsInviteOpen] = useState(false);
     const [wishlistLoading, setWishlistLoading] = useState(false);
+    const [copied, setCopied] = useState(false);
 
     const handleAssign = (wishlistId: string) => {
         setWishlistLoading(true);
@@ -87,11 +88,25 @@ export default function GroupShow({ group, participants, draw, userWishlists }: 
                         </p>
                     )}
 
-                    <div className="mb-6 inline-flex items-center gap-3 rounded-xl bg-white/20 px-6 py-3 backdrop-blur-md border border-white/30 shadow-lg">
-                        <div className="text-right">
-                            <p className="text-xs font-bold text-white/60 uppercase tracking-widest">Code Groupe</p>
-                            <p className="text-2xl font-mono font-bold text-[#F8B803] tracking-wider select-all">{group.code}</p>
+                    <div className="mb-6 flex flex-col items-center gap-2">
+                        <div className="flex items-center gap-3 rounded-xl bg-white/20 px-8 py-4 backdrop-blur-md border border-white/30 shadow-lg relative group transition-all hover:bg-white/25">
+                            <div className="text-center">
+                                <p className="text-xs font-bold text-white/60 uppercase tracking-widest mb-1">Code Groupe</p>
+                                <p className="text-4xl font-mono font-bold text-[#F8B803] tracking-widest select-all">{group.code}</p>
+                            </div>
+                            <button
+                                onClick={() => {
+                                    navigator.clipboard.writeText(group.code);
+                                    setCopied(true);
+                                    setTimeout(() => setCopied(false), 2000);
+                                }}
+                                className="absolute -right-3 -top-3 p-2 bg-white text-[#D42426] rounded-full shadow-md hover:scale-110 transition-transform dark:bg-gray-800 dark:text-white"
+                                title="Copier le code"
+                            >
+                                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                            </button>
                         </div>
+                        <p className="text-xs text-white/50 italic">Partagez ce code avec vos amis pour qu'ils rejoignent le groupe !</p>
                     </div>
 
                     {group.description && <p className="text-white/80 max-w-2xl mb-6">{group.description}</p>}

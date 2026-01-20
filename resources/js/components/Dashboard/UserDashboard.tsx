@@ -13,6 +13,13 @@ export default function UserDashboard({ groups }: UserDashboardProps) {
 
     return (
         <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col justify-center px-6 py-20">
+            {/* Logo Top-Left */}
+            <img
+                src="/images/logo.png"
+                alt="My Secret Santa"
+                className="absolute top-6 left-6 w-16 h-auto drop-shadow-lg md:w-20"
+            />
+
             <div className="mb-12 text-center animate-fade-in-down">
                 <h2 className="font-christmas text-5xl font-bold text-white drop-shadow-md sm:text-6xl">
                     Vos Groupes
